@@ -64,6 +64,9 @@ export interface PersonListResponse {
   success: boolean;
   data: Person[];
   count: number;
+  total: number;
+  limit: number;
+  offset: number;
 }
 
 export interface FamilyListItem {

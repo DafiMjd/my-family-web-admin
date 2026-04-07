@@ -9,6 +9,13 @@ interface CreatePersonRequest {
   deathDate: string | null;
 }
 
+interface UpdatePersonRequest extends CreatePersonRequest {}
+interface DeletePersonRequest {
+  id: string;
+  deleteSpouse: boolean;
+  deleteChildren: boolean;
+}
+
 interface FamilyPersonPayload {
   parentId?: string;
   name: string;
@@ -68,6 +75,29 @@ export const personService = {
       method: 'POST',
       body: JSON.stringify(body),
     }),
+  getPersonById: (id: string): Promise<{ success: boolean; data: import('@/types/family-tree').Person }> =>
+    apiClient<{ success: boolean; data: import('@/types/family-tree').Person }>(
+      `/api/person/one?id=${encodeURIComponent(id)}`,
+    ),
+  updatePerson: (
+    id: string,
+    body: UpdatePersonRequest,
+  ): Promise<{ success: boolean; data: unknown }> =>
+    apiClient<{ success: boolean; data: unknown }>(`/api/person/one?id=${encodeURIComponent(id)}`, {
+      method: 'PUT',
+      body: JSON.stringify(body),
+    }),
+  deletePerson: ({
+    id,
+    deleteSpouse,
+    deleteChildren,
+  }: DeletePersonRequest): Promise<{ success: boolean; data: unknown }> =>
+    apiClient<{ success: boolean; data: unknown }>(
+      `/api/person/one?id=${encodeURIComponent(id)}&deleteSpouse=${String(deleteSpouse)}&deleteChildren=${String(deleteChildren)}`,
+      {
+        method: 'DELETE',
+      },
+    ),
   createFamily: (body: CreateFamilyRequest): Promise<{ success: boolean; data: unknown }> =>
     apiClient<{ success: boolean; data: unknown }>('/api/family/one', {
       method: 'POST',

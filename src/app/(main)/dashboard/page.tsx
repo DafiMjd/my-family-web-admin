@@ -1,10 +1,12 @@
 'use client';
 
-import Image from 'next/image';
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { clearTokens, hasToken } from '@/lib/auth-storage';
 import { FamilyRootCard } from '@/app/components/FamilyRootCard';
+import { LogoutConfirmModal } from '@/app/components/LogoutConfirmModal';
+import { MainHeaderActions } from '@/app/components/MainHeaderActions';
+import { PageHeader } from '@/app/components/PageHeader';
 import { useFamilyChildren } from '@/hooks/use-family-children';
 import { useFamilyRoots } from '@/hooks/use-family-roots';
 import type { Person, PersonWithSpouse } from '@/types/family-tree';
@@ -108,7 +110,6 @@ export default function DashboardPage() {
   const { data, isLoading, isError } = useFamilyRoots();
   const [openedRoots, setOpenedRoots] = useState<Record<string, boolean>>({});
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
-  const [isAddMenuOpen, setIsAddMenuOpen] = useState(false);
   const [showSuccessToast, setShowSuccessToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
 
@@ -175,63 +176,21 @@ export default function DashboardPage() {
   }
 
   function handleOpenAddRoute(path: '/add-person' | '/add-family' | '/marriage') {
-    setIsAddMenuOpen(false);
     router.push(path);
   }
 
   return (
-    <div className="min-h-dvh flex flex-col bg-[#F5F5F5]">
+    <div className="flex flex-col flex-1">
       {showSuccessToast ? (
         <div className="fixed top-4 right-4 z-50 rounded-lg bg-[#2E7D32] px-4 py-2 text-sm font-semibold text-white shadow-md">
           {toastMessage}
         </div>
       ) : null}
 
-      <header className="flex items-center justify-between px-6 py-4 bg-white border-b border-[#E0E0E0] shadow-sm">
-        <span className="text-base font-semibold text-[#242424]">Family Tree Admin</span>
-        <div className="flex items-center gap-2">
-          <div className="relative">
-            <button
-              onClick={() => setIsAddMenuOpen((prev) => !prev)}
-              className="px-4 py-2 rounded-lg bg-[#65587a] text-white text-sm font-semibold active:scale-95 transition-transform"
-            >
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-semibold text-white">Tambah Data</span>
-                <Image src="/ic_plus.svg" alt="" width={16} height={16} />
-              </div>
-            </button>
-
-            {isAddMenuOpen ? (
-              <div className="absolute right-0 mt-2 w-48 rounded-lg border border-[#E0E0E0] bg-white shadow-md overflow-hidden z-10">
-                <button
-                  onClick={() => handleOpenAddRoute('/add-person')}
-                  className="w-full px-3 py-2 text-left text-sm text-[#242424] hover:bg-[#F5F5F5]"
-                >
-                  Tambah Orang
-                </button>
-                <button
-                  onClick={() => handleOpenAddRoute('/add-family')}
-                  className="w-full px-3 py-2 text-left text-sm text-[#242424] hover:bg-[#F5F5F5]"
-                >
-                  Tambah Keluarga
-                </button>
-                <button
-                  onClick={() => handleOpenAddRoute('/marriage')}
-                  className="w-full px-3 py-2 text-left text-sm text-[#242424] hover:bg-[#F5F5F5]"
-                >
-                  Tambah Pernikahan
-                </button>
-              </div>
-            ) : null}
-          </div>
-          <button
-            onClick={handleLogout}
-            className="px-4 py-2 rounded-lg bg-[#242424] text-white text-sm font-semibold active:scale-95 transition-transform"
-          >
-            Logout
-          </button>
-        </div>
-      </header>
+      <PageHeader
+        title="Dashboard"
+        rightContent={<MainHeaderActions onOpenAddRoute={handleOpenAddRoute} onLogout={handleLogout} />}
+      />
 
       <main className="flex flex-1 items-start justify-start overflow-auto">
         <section className="w-full px-6 pt-6 pb-6">
@@ -281,34 +240,11 @@ export default function DashboardPage() {
         </section>
       </main>
 
-      {isLogoutModalOpen ? (
-        <div
-          className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4"
-          onClick={() => setIsLogoutModalOpen(false)}
-        >
-          <div
-            className="w-full max-w-sm rounded-2xl bg-white p-4 flex flex-col gap-4"
-            onClick={(event) => event.stopPropagation()}
-          >
-            <h2 className="text-base font-semibold text-[#242424]">Konfirmasi Logout</h2>
-            <p className="text-sm text-[#606060]">Apakah kamu yakin ingin logout?</p>
-            <div className="flex items-center justify-end gap-2">
-              <button
-                onClick={() => setIsLogoutModalOpen(false)}
-                className="px-4 py-2 rounded-lg bg-[#F0F0F0] text-[#242424] text-sm font-semibold active:scale-95 transition-transform"
-              >
-                Batal
-              </button>
-              <button
-                onClick={handleConfirmLogout}
-                className="px-4 py-2 rounded-lg bg-[#242424] text-white text-sm font-semibold active:scale-95 transition-transform"
-              >
-                Logout
-              </button>
-            </div>
-          </div>
-        </div>
-      ) : null}
+      <LogoutConfirmModal
+        isOpen={isLogoutModalOpen}
+        onClose={() => setIsLogoutModalOpen(false)}
+        onConfirm={handleConfirmLogout}
+      />
     </div>
   );
 }

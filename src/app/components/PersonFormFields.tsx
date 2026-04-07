@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { personService } from '@/services/person.service';
 import type { Gender, Person } from '@/types/family-tree';
@@ -33,16 +33,47 @@ export function PersonFormFields({
   queryScope,
 }: PersonFormFieldsProps) {
   const [parentKeyword, setParentKeyword] = useState('');
+  const [debouncedParentKeyword, setDebouncedParentKeyword] = useState('');
   const [selectedParent, setSelectedParent] = useState<Person | null>(null);
   const [isParentDropdownOpen, setIsParentDropdownOpen] = useState(false);
+  const parentDropdownRef = useRef<HTMLDivElement | null>(null);
+  const parentListRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setDebouncedParentKeyword(parentKeyword);
+    }, 500);
+
+    return () => clearTimeout(timeout);
+  }, [parentKeyword]);
+
+  useEffect(() => {
+    if (!isParentDropdownOpen) {
+      return;
+    }
+
+    function handleClickOutside(event: MouseEvent) {
+      const target = event.target;
+      if (!(target instanceof Node)) {
+        return;
+      }
+
+      if (!parentDropdownRef.current?.contains(target)) {
+        setIsParentDropdownOpen(false);
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isParentDropdownOpen]);
 
   const parentQuery = useInfiniteQuery({
-    queryKey: ['person-list', 'dropdown', queryScope, parentKeyword],
+    queryKey: ['person-list', 'dropdown', queryScope, debouncedParentKeyword],
     queryFn: ({ pageParam = 0 }) =>
       personService.getPersonList({
         limit: PAGE_SIZE,
         offset: pageParam,
-        name: parentKeyword,
+        name: debouncedParentKeyword,
       }),
     getNextPageParam: (lastPage, allPages) => {
       if (lastPage.data.length < PAGE_SIZE) {
@@ -72,7 +103,7 @@ export function PersonFormFields({
       {parentEnabled ? (
         <div className="flex flex-col gap-1">
           <span className="text-sm font-medium text-[#242424]">Orang tua</span>
-          <div className="relative">
+          <div className="relative" ref={parentDropdownRef}>
             <input
               value={selectedParent ? selectedParent.name : parentKeyword}
               onFocus={() => setIsParentDropdownOpen(true)}
@@ -180,6 +211,13 @@ export function PersonFormFields({
           onChange={(event) => onChange({ ...value, deathDate: event.target.value })}
           className="h-10 rounded-lg border border-[#D9D9D9] px-3 text-sm outline-none focus:border-[#65587a]"
         />
+        <button
+          type="button"
+          onClick={() => onChange({ ...value, deathDate: '' })}
+          className="self-start text-xs font-medium text-[#65587a] hover:underline"
+        >
+          Hapus tanggal meninggal
+        </button>
       </label>
     </div>
   );
