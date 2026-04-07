@@ -110,6 +110,7 @@ export default function DashboardPage() {
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const [isAddMenuOpen, setIsAddMenuOpen] = useState(false);
   const [showSuccessToast, setShowSuccessToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
 
   useEffect(() => {
     if (!hasToken()) {
@@ -119,8 +120,16 @@ export default function DashboardPage() {
 
   useEffect(() => {
     const toast = sessionStorage.getItem('dashboard_toast');
-    if (toast !== 'person-added') {
+    if (!toast) {
       return;
+    }
+
+    if (toast === 'person-added') {
+      setToastMessage('Data orang berhasil ditambah.');
+    }
+
+    if (toast === 'family-added') {
+      setToastMessage('Data keluarga berhasil ditambah.');
     }
 
     setShowSuccessToast(true);
@@ -170,7 +179,7 @@ export default function DashboardPage() {
     <div className="min-h-dvh flex flex-col bg-[#F5F5F5]">
       {showSuccessToast ? (
         <div className="fixed top-4 right-4 z-50 rounded-lg bg-[#2E7D32] px-4 py-2 text-sm font-semibold text-white shadow-md">
-          Data orang berhasil ditambah.
+          {toastMessage}
         </div>
       ) : null}
 

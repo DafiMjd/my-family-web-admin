@@ -9,6 +9,20 @@ interface CreatePersonRequest {
   deathDate: string | null;
 }
 
+interface FamilyPersonPayload {
+  parentId?: string;
+  name: string;
+  gender: 'MAN' | 'WOMAN';
+  birthDate: string;
+  deathDate: string | null;
+}
+
+interface CreateFamilyRequest {
+  father: FamilyPersonPayload;
+  mother: FamilyPersonPayload;
+  children: Array<Omit<FamilyPersonPayload, 'parentId'>>;
+}
+
 export const personService = {
   getLatestPeople: (limit = 5, offset = 0): Promise<LatestPeopleResponse> =>
     apiClient<LatestPeopleResponse>(`/api/person/latest/list?limit=${limit}&offset=${offset}`),
@@ -26,6 +40,11 @@ export const personService = {
   },
   createPerson: (body: CreatePersonRequest): Promise<{ success: boolean; data: unknown }> =>
     apiClient<{ success: boolean; data: unknown }>('/api/person/one', {
+      method: 'POST',
+      body: JSON.stringify(body),
+    }),
+  createFamily: (body: CreateFamilyRequest): Promise<{ success: boolean; data: unknown }> =>
+    apiClient<{ success: boolean; data: unknown }>('/api/family/one', {
       method: 'POST',
       body: JSON.stringify(body),
     }),
