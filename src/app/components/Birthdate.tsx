@@ -4,11 +4,23 @@ function formatDate(iso: string): string {
     return iso.slice(0, 10);
 }
 
-function dateToAge(date: string): number {
+function dateToAge(date: string): string {
     const now = new Date();
     const birthDate = new Date(date);
     const age = now.getFullYear() - birthDate.getFullYear();
-    return age;
+
+    if (age > 0) {
+        return `${age} tahun`;
+    }
+    const months = now.getMonth() - birthDate.getMonth();
+    if (months > 0) {
+        return `${months} bulan`;
+    }
+    const days = now.getDate() - birthDate.getDate();
+    if (days > 0) {
+        return `${days} hari`;
+    }
+    return '0 tahun';
 }
 
 export default function Birthdate({ birthDate, align }: { birthDate: string, align?: 'left' | 'right' }) {
@@ -18,7 +30,7 @@ export default function Birthdate({ birthDate, align }: { birthDate: string, ali
         <div className={`flex items-center gap-1 ${flexAlign}`}>
             <Image src="/ic_date.svg" alt="" width={12} height={12} />
             <span className="max-w-full truncate line-clamp-1 text-[11px]  font-normal text-[#A2A2A2] font-sora">
-            {formatDate(birthDate)} ({dateToAge(birthDate)} tahun)
+                {formatDate(birthDate)} ({dateToAge(birthDate)} tahun)
             </span>
         </div>
     )

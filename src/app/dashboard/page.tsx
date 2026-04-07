@@ -109,12 +109,28 @@ export default function DashboardPage() {
   const [openedRoots, setOpenedRoots] = useState<Record<string, boolean>>({});
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const [isAddMenuOpen, setIsAddMenuOpen] = useState(false);
+  const [showSuccessToast, setShowSuccessToast] = useState(false);
 
   useEffect(() => {
     if (!hasToken()) {
       router.replace('/login');
     }
   }, [router]);
+
+  useEffect(() => {
+    const toast = sessionStorage.getItem('dashboard_toast');
+    if (toast !== 'person-added') {
+      return;
+    }
+
+    setShowSuccessToast(true);
+    const timeout = setTimeout(() => {
+      setShowSuccessToast(false);
+      sessionStorage.removeItem('dashboard_toast');
+    }, 1000);
+
+    return () => clearTimeout(timeout);
+  }, []);
 
   function handleLogout() {
     setIsLogoutModalOpen(true);
@@ -152,6 +168,12 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-dvh flex flex-col bg-[#F5F5F5]">
+      {showSuccessToast ? (
+        <div className="fixed top-4 right-4 z-50 rounded-lg bg-[#2E7D32] px-4 py-2 text-sm font-semibold text-white shadow-md">
+          Data orang berhasil ditambah.
+        </div>
+      ) : null}
+
       <header className="flex items-center justify-between px-6 py-4 bg-white border-b border-[#E0E0E0] shadow-sm">
         <span className="text-base font-semibold text-[#242424]">Family Tree Admin</span>
         <div className="flex items-center gap-2">
