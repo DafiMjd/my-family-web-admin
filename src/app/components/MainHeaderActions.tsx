@@ -4,14 +4,14 @@ import Image from 'next/image';
 import { useState } from 'react';
 
 interface MainHeaderActionsProps {
-  onOpenAddRoute: (path: '/add-person' | '/add-family' | '/marriage') => void;
+  onOpenAddRoute: (path: '/add-person' | '/add-family' | '/marriage' | '/add-family-children') => void;
   onLogout: () => void;
 }
 
 export function MainHeaderActions({ onOpenAddRoute, onLogout }: MainHeaderActionsProps) {
   const [isAddMenuOpen, setIsAddMenuOpen] = useState(false);
 
-  function handleOpenAddRoute(path: '/add-person' | '/add-family' | '/marriage') {
+  function handleOpenAddRoute(path: '/add-person' | '/add-family' | '/marriage' | '/add-family-children') {
     setIsAddMenuOpen(false);
     onOpenAddRoute(path);
   }
@@ -48,6 +48,12 @@ export function MainHeaderActions({ onOpenAddRoute, onLogout }: MainHeaderAction
               className="w-full px-3 py-2 text-left text-sm text-[#242424] hover:bg-[#F5F5F5]"
             >
               Tambah Pernikahan
+            </button>
+            <button
+              onClick={() => handleOpenAddRoute('/add-family-children')}
+              className="w-full px-3 py-2 text-left text-sm text-[#242424] hover:bg-[#F5F5F5]"
+            >
+              Tambah Anak-Anak
             </button>
           </div>
         ) : null}

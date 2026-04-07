@@ -7,6 +7,18 @@ import type {
   FamilyRootsResponse,
 } from '@/types/family-tree';
 
+interface AddChildrenRequestItem {
+  name: string;
+  gender: 'MAN' | 'WOMAN';
+  birthDate: string;
+  deathDate?: string;
+}
+
+interface AddChildrenRequest {
+  parentId: string;
+  children: AddChildrenRequestItem[];
+}
+
 export const familyTreeService = {
   getRoots: (): Promise<FamilyRootsResponse> =>
     apiClient<FamilyRootsResponse>('/api/family-tree/roots'),
@@ -41,4 +53,9 @@ export const familyTreeService = {
 
     return apiClient<FamilyListResponse>(`/api/family/list?${query.toString()}`);
   },
+  addChildren: (body: AddChildrenRequest): Promise<{ success: boolean; data: unknown }> =>
+    apiClient<{ success: boolean; data: unknown }>('/api/family-tree/add-children', {
+      method: 'POST',
+      body: JSON.stringify(body),
+    }),
 };

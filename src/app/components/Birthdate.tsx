@@ -30,7 +30,7 @@ export default function Birthdate({ birthDate, align }: { birthDate: string, ali
         <div className={`flex items-center gap-1 ${flexAlign}`}>
             <Image src="/ic_date.svg" alt="" width={12} height={12} />
             <span className="max-w-full truncate line-clamp-1 text-[11px]  font-normal text-[#A2A2A2] font-sora">
-                {formatDate(birthDate)} ({dateToAge(birthDate)} tahun)
+                {formatDate(birthDate)} ({dateToAge(birthDate)})
             </span>
         </div>
     )

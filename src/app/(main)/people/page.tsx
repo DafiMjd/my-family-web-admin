@@ -317,7 +317,7 @@ export default function PeoplePage() {
     router.replace('/login');
   }
 
-  function handleOpenAddRoute(path: '/add-person' | '/add-family' | '/marriage') {
+  function handleOpenAddRoute(path: '/add-person' | '/add-family' | '/marriage' | '/add-family-children') {
     router.push(path);
   }
 

@@ -137,6 +137,10 @@ export default function DashboardPage() {
       setToastMessage('Data pernikahan berhasil ditambah.');
     }
 
+    if (toast === 'children-added') {
+      setToastMessage('Data anak-anak berhasil ditambah.');
+    }
+
     setShowSuccessToast(true);
     const timeout = setTimeout(() => {
       setShowSuccessToast(false);
@@ -175,7 +179,7 @@ export default function DashboardPage() {
     }));
   }
 
-  function handleOpenAddRoute(path: '/add-person' | '/add-family' | '/marriage') {
+  function handleOpenAddRoute(path: '/add-person' | '/add-family' | '/marriage' | '/add-family-children') {
     router.push(path);
   }
 

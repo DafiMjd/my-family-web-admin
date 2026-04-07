@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useInfiniteQuery, useMutation } from '@tanstack/react-query';
 import { PersonFormFields, type PersonDraft } from '@/app/components/PersonFormFields';
@@ -30,6 +30,7 @@ function PersonSearchSelect({
 }) {
   const [keyword, setKeyword] = useState('');
   const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement | null>(null);
 
   const query = useInfiniteQuery({
     queryKey: ['person-list', 'marriage', gender, keyword],
@@ -62,9 +63,29 @@ function PersonSearchSelect({
     });
   }, [query.data]);
 
+  useEffect(() => {
+    if (!isOpen) {
+      return;
+    }
+
+    function handleClickOutside(event: MouseEvent) {
+      const target = event.target;
+      if (!(target instanceof Node)) {
+        return;
+      }
+
+      if (!dropdownRef.current?.contains(target)) {
+        setIsOpen(false);
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isOpen]);
+
   return (
     <div className="flex flex-col gap-2">
-      <div className="relative">
+      <div className="relative" ref={dropdownRef}>
         <input
           value={selected ? selected.name : keyword}
           onFocus={() => setIsOpen(true)}
