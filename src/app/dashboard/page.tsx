@@ -132,6 +132,10 @@ export default function DashboardPage() {
       setToastMessage('Data keluarga berhasil ditambah.');
     }
 
+    if (toast === 'marriage-added') {
+      setToastMessage('Data pernikahan berhasil ditambah.');
+    }
+
     setShowSuccessToast(true);
     const timeout = setTimeout(() => {
       setShowSuccessToast(false);

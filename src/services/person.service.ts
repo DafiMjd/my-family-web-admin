@@ -23,10 +23,27 @@ interface CreateFamilyRequest {
   children: Array<Omit<FamilyPersonPayload, 'parentId'>>;
 }
 
+interface MarriagePersonPayload {
+  personId?: string;
+  newPerson?: FamilyPersonPayload;
+}
+
+interface CreateMarriageRequest {
+  person1: MarriagePersonPayload;
+  person2: MarriagePersonPayload;
+  startDate?: string;
+}
+
 export const personService = {
   getLatestPeople: (limit = 5, offset = 0): Promise<LatestPeopleResponse> =>
     apiClient<LatestPeopleResponse>(`/api/person/latest/list?limit=${limit}&offset=${offset}`),
-  getPersonList: (params: { limit: number; offset: number; name?: string }): Promise<PersonListResponse> => {
+  getPersonList: (params: {
+    limit: number;
+    offset: number;
+    name?: string;
+    gender?: 'MAN' | 'WOMAN';
+    status?: 'SINGLE' | 'MARRIED';
+  }): Promise<PersonListResponse> => {
     const query = new URLSearchParams({
       limit: String(params.limit),
       offset: String(params.offset),
@@ -34,6 +51,14 @@ export const personService = {
 
     if (params.name && params.name.trim().length > 0) {
       query.set('name', params.name.trim());
+    }
+
+    if (params.gender) {
+      query.set('gender', params.gender);
+    }
+
+    if (params.status) {
+      query.set('status', params.status);
     }
 
     return apiClient<PersonListResponse>(`/api/person/list?${query.toString()}`);
@@ -45,6 +70,11 @@ export const personService = {
     }),
   createFamily: (body: CreateFamilyRequest): Promise<{ success: boolean; data: unknown }> =>
     apiClient<{ success: boolean; data: unknown }>('/api/family/one', {
+      method: 'POST',
+      body: JSON.stringify(body),
+    }),
+  createMarriage: (body: CreateMarriageRequest): Promise<{ success: boolean; data: unknown }> =>
+    apiClient<{ success: boolean; data: unknown }>('/api/marriage/marry', {
       method: 'POST',
       body: JSON.stringify(body),
     }),
