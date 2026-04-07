@@ -20,8 +20,8 @@ export interface FamilyRootCardProps {
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function getPersonRole(person: Person): string {
-  if (person.gender === Gender.MAN) return 'Husband';
-  return 'Wife';
+  if (person.gender === Gender.MAN) return 'Suami';
+  return 'Istri';
 }
 
 function formatDate(iso: string): string {
@@ -42,13 +42,13 @@ function PersonRow({ member, role, align }: PersonRowProps) {
   return (
     <div className={`flex items-center gap-[7px] ${isLeft ? 'flex-row' : 'flex-row-reverse'}`}>
       <Avatar member={member} />
-      <div className={`flex flex-col ${isLeft ? 'items-start' : 'items-end'}`}>
+      <div className={`min-w-0 flex flex-col ${isLeft ? 'items-start' : 'items-end'}`}>
         {role && (
-          <span className="text-[12px] font-normal text-[#A2A2A2] font-sora leading-[1.2]">
+          <span className="max-w-full truncate text-[12px] font-normal text-[#A2A2A2] font-sora leading-[1.2]">
             {role}
           </span>
         )}
-        <span className="text-[16px] font-semibold text-[#242424] font-sora leading-normal">
+        <span className="max-w-full truncate text-[16px] font-semibold text-[#242424] font-sora leading-normal">
           {member.name}
         </span>
         {member.birthDate && (
@@ -74,7 +74,6 @@ function CardHeader({ align }: { align: Align }) {
               Married Couple
             </span>
           </div>
-          <Image src="/ic_forward.svg" alt="lihat detail" width={24} height={24} />
         </>
       ) : (
         <>
@@ -116,7 +115,7 @@ export function FamilyRootCard({
 
   return (
     <div
-      className={`bg-white rounded-lg p-2 flex flex-col gap-2 shadow-sm ${canTap ? 'cursor-pointer active:scale-[0.99] transition-transform' : ''
+      className={`bg-white rounded-lg w-80 p-2 flex flex-col gap-2 shadow-sm ${canTap ? 'cursor-pointer active:scale-[0.99] transition-transform' : ''
         }`}
       onClick={handleTap}
       role={canTap ? 'button' : undefined}

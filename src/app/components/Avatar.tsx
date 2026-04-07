@@ -11,18 +11,18 @@ export function Avatar({ member, size, className }: { member: Person, size?: num
     const imageSize = size || 12;
     const width = imageSize * 5;
 
-    if (member.profilePictureUrl) {
-        return (
-            <Image
-                src={src}
-                alt={member.name}
-                width={width}
-                height={width}
-                className={`w-${imageSize} h-${imageSize} rounded-full object-cover shrink-0 ${className}`}
-                onError={() => setSrc(fallbackPath)}
-            />
-        );
-    }
+    // if (member.profilePictureUrl) {
+    //     return (
+    //         <Image
+    //             src={src}
+    //             alt={member.name}
+    //             width={width}
+    //             height={width}
+    //             className={`w-${imageSize} h-${imageSize} rounded-full object-cover shrink-0 ${className}`}
+    //             onError={() => setSrc(fallbackPath)}
+    //         />
+    //     );
+    // }
 
     return (
         <Image
