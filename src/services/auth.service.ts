@@ -1,7 +1,8 @@
 import { apiClient } from '@/lib/api-client';
 import type { LoginRequest, LoginResponse } from '@/types/auth';
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
+// const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
+const BASE_URL = 'http://76.13.192.114:3001';
 
 export const authService = {
   login: (body: LoginRequest): Promise<LoginResponse> =>
