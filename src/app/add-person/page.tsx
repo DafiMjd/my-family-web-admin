@@ -9,7 +9,7 @@ import { personService } from '@/services/person.service';
 export default function AddPersonPage() {
   const router = useRouter();
   const [form, setForm] = useState<PersonDraft>({
-    parentId: undefined,
+    parent: null,
     name: '',
     gender: 'MAN',
     birthDate: '',
@@ -20,7 +20,7 @@ export default function AddPersonPage() {
   const createPersonMutation = useMutation({
     mutationFn: () =>
       personService.createPerson({
-        parentId: form.parentId,
+        parent: form.parent ?? null,
         name: form.name.trim(),
         gender: form.gender,
         birthDate: form.birthDate,

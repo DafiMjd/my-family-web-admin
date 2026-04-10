@@ -8,7 +8,7 @@ import { personService } from '@/services/person.service';
 
 function createEmptyPerson(gender: 'MAN' | 'WOMAN'): PersonDraft {
   return {
-    parentId: undefined,
+    parent: null,
     name: '',
     gender,
     birthDate: '',
@@ -30,14 +30,14 @@ export default function AddFamilyPage() {
     mutationFn: () =>
       personService.createFamily({
         father: {
-          parentId: father.parentId,
+          parent: father.parent ?? null,
           name: father.name.trim(),
           gender: 'MAN',
           birthDate: father.birthDate,
           deathDate: father.deathDate || null,
         },
         mother: {
-          parentId: mother.parentId,
+          parent: mother.parent ?? null,
           name: mother.name.trim(),
           gender: 'WOMAN',
           birthDate: mother.birthDate,

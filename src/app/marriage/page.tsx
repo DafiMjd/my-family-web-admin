@@ -11,7 +11,7 @@ const PAGE_SIZE = 10;
 
 function createEmptyPerson(gender: 'MAN' | 'WOMAN'): PersonDraft {
   return {
-    parentId: undefined,
+    parent: null,
     name: '',
     gender,
     birthDate: '',
@@ -37,7 +37,6 @@ function PersonSearchSelect({
     queryFn: ({ pageParam = 0 }) =>
       personService.getPersonList({
         gender,
-        status: 'SINGLE',
         limit: PAGE_SIZE,
         offset: pageParam,
         name: keyword,
@@ -145,6 +144,7 @@ function PersonSearchSelect({
 export default function MarriagePage() {
   const router = useRouter();
   const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
   const [isNewHusband, setIsNewHusband] = useState(false);
   const [isNewWife, setIsNewWife] = useState(false);
   const [selectedHusband, setSelectedHusband] = useState<Person | null>(null);
@@ -167,7 +167,7 @@ export default function MarriagePage() {
         person1: isNewHusband
           ? {
               newPerson: {
-                parentId: newHusband.parentId,
+                parent: newHusband.parent ?? null,
                 name: newHusband.name.trim(),
                 gender: 'MAN',
                 birthDate: newHusband.birthDate,
@@ -178,7 +178,7 @@ export default function MarriagePage() {
         person2: isNewWife
           ? {
               newPerson: {
-                parentId: newWife.parentId,
+                parent: newWife.parent ?? null,
                 name: newWife.name.trim(),
                 gender: 'WOMAN',
                 birthDate: newWife.birthDate,
@@ -187,6 +187,7 @@ export default function MarriagePage() {
             }
           : { personId: selectedWife?.id },
         ...(startDate ? { startDate } : {}),
+        ...(endDate ? { endDate } : {}),
       }),
     onSuccess: () => {
       sessionStorage.setItem('dashboard_toast', 'marriage-added');
@@ -281,6 +282,16 @@ export default function MarriagePage() {
             type="date"
             value={startDate}
             onChange={(event) => setStartDate(event.target.value)}
+            className="h-10 rounded-lg border border-[#D9D9D9] px-3 text-sm outline-none focus:border-[#65587a]"
+          />
+        </label>
+
+        <label className="flex flex-col gap-1 max-w-sm">
+          <span className="text-sm font-medium text-[#242424]">Tanggal Berakhir (opsional)</span>
+          <input
+            type="date"
+            value={endDate}
+            onChange={(event) => setEndDate(event.target.value)}
             className="h-10 rounded-lg border border-[#D9D9D9] px-3 text-sm outline-none focus:border-[#65587a]"
           />
         </label>

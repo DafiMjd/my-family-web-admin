@@ -4,13 +4,12 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { PersonFormFields, type PersonDraft } from '@/app/components/PersonFormFields';
-import { personService } from '@/services/person.service';
 import { familyTreeService } from '@/services/family-tree.service';
-import type { Person } from '@/types/family-tree';
+import type { ParentPair } from '@/types/family-tree';
 
 function createEmptyPerson(gender: 'MAN' | 'WOMAN'): PersonDraft {
   return {
-    parentId: undefined,
+    parent: null,
     name: '',
     gender,
     birthDate: '',
@@ -20,7 +19,7 @@ function createEmptyPerson(gender: 'MAN' | 'WOMAN'): PersonDraft {
 
 export default function AddFamilyChildrenPage() {
   const router = useRouter();
-  const [parentId, setParentId] = useState('');
+  const [parent, setParent] = useState<ParentPair | null>(null);
   const [parentKeyword, setParentKeyword] = useState('');
   const [isParentDropdownOpen, setIsParentDropdownOpen] = useState(false);
   const [children, setChildren] = useState<PersonDraft[]>([]);
@@ -30,27 +29,37 @@ export default function AddFamilyChildrenPage() {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const parentDropdownRef = useRef<HTMLDivElement | null>(null);
 
-  const marriedPeopleQuery = useQuery({
-    queryKey: ['person-list', 'married-parent', 10, 0],
-    queryFn: () =>
-      personService.getPersonList({
-        limit: 10,
-        offset: 0,
-        status: 'MARRIED',
-      }),
+  const marriedCouplesQuery = useQuery({
+    queryKey: ['family-tree', 'married-couples', 'add-family-children-parent'],
+    queryFn: familyTreeService.getMarriedCouples,
   });
 
-  const parentOptions = useMemo(() => marriedPeopleQuery.data?.data ?? [], [marriedPeopleQuery.data]);
+  const parentOptions = useMemo(
+    () =>
+      (marriedCouplesQuery.data?.data ?? []).map((couple) => ({
+        label: `${couple.father.name} & ${couple.mother.name}`,
+        parent: {
+          fatherId: couple.father.id,
+          motherId: couple.mother.id,
+        } satisfies ParentPair,
+      })),
+    [marriedCouplesQuery.data],
+  );
   const selectedParent = useMemo(
-    () => parentOptions.find((person) => person.id === parentId) ?? null,
-    [parentId, parentOptions],
+    () =>
+      parentOptions.find(
+        (option) =>
+          option.parent.fatherId === parent?.fatherId &&
+          option.parent.motherId === parent?.motherId,
+      ) ?? null,
+    [parent, parentOptions],
   );
   const filteredParentOptions = useMemo(() => {
     const keyword = parentKeyword.trim().toLowerCase();
     if (!keyword) {
       return parentOptions;
     }
-    return parentOptions.filter((person) => person.name.toLowerCase().includes(keyword));
+    return parentOptions.filter((option) => option.label.toLowerCase().includes(keyword));
   }, [parentKeyword, parentOptions]);
 
   useEffect(() => {
@@ -75,7 +84,7 @@ export default function AddFamilyChildrenPage() {
   const addChildrenMutation = useMutation({
     mutationFn: () =>
       familyTreeService.addChildren({
-        parentId,
+        parent: parent,
         children: children.map((child) => ({
           name: child.name.trim(),
           gender: child.gender,
@@ -93,7 +102,7 @@ export default function AddFamilyChildrenPage() {
   });
 
   const isChildFormValid = childForm.name.trim().length > 0 && childForm.birthDate.length > 0;
-  const isFormValid = parentId.length > 0 && children.length > 0;
+  const isFormValid = Boolean(parent) && children.length > 0;
 
   function handleOpenAddChild() {
     setEditingChildIndex(null);
@@ -158,44 +167,44 @@ export default function AddFamilyChildrenPage() {
           <h2 className="text-base font-semibold text-[#242424]">Orang Tua</h2>
           <div className="relative" ref={parentDropdownRef}>
             <input
-              value={selectedParent ? selectedParent.name : parentKeyword}
+              value={selectedParent ? selectedParent.label : parentKeyword}
               onFocus={() => setIsParentDropdownOpen(true)}
               onChange={(event) => {
-                setParentId('');
+                setParent(null);
                 setParentKeyword(event.target.value);
                 setIsParentDropdownOpen(true);
               }}
-              disabled={marriedPeopleQuery.isLoading || marriedPeopleQuery.isError}
+              disabled={marriedCouplesQuery.isLoading || marriedCouplesQuery.isError}
               placeholder="Cari orang tua (menikah)"
               className="h-10 w-full rounded-lg border border-[#D9D9D9] px-3 text-sm outline-none focus:border-[#65587a] disabled:bg-[#F2F2F2]"
             />
 
             {isParentDropdownOpen ? (
               <div className="absolute z-20 mt-1 max-h-52 w-full overflow-auto rounded-lg border border-[#E0E0E0] bg-white shadow-sm">
-                {filteredParentOptions.map((person: Person) => (
+                {filteredParentOptions.map((option) => (
                   <button
                     type="button"
-                    key={person.id}
+                    key={`${option.parent.fatherId}-${option.parent.motherId}`}
                     onClick={() => {
-                      setParentId(person.id);
-                      setParentKeyword(person.name);
+                      setParent(option.parent);
+                      setParentKeyword(option.label);
                       setIsParentDropdownOpen(false);
                     }}
                     className="w-full px-3 py-2 text-left text-sm text-[#242424] hover:bg-[#F7F7F7]"
                   >
-                    {person.name}
+                    {option.label}
                   </button>
                 ))}
-                {!marriedPeopleQuery.isLoading && filteredParentOptions.length === 0 ? (
+                {!marriedCouplesQuery.isLoading && filteredParentOptions.length === 0 ? (
                   <p className="px-3 py-2 text-xs text-[#8A8A8A]">Data tidak ditemukan.</p>
                 ) : null}
               </div>
             ) : null}
           </div>
-          {marriedPeopleQuery.isLoading ? (
+          {marriedCouplesQuery.isLoading ? (
             <p className="text-xs text-[#8A8A8A]">Memuat daftar orang tua...</p>
           ) : null}
-          {marriedPeopleQuery.isError ? (
+          {marriedCouplesQuery.isError ? (
             <p className="text-xs text-red-500">Gagal memuat data orang tua.</p>
           ) : null}
         </section>

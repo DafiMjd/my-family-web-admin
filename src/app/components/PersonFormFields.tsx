@@ -1,14 +1,12 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useInfiniteQuery } from '@tanstack/react-query';
-import { personService } from '@/services/person.service';
-import type { Gender, Person } from '@/types/family-tree';
-
-const PAGE_SIZE = 10;
+import { useQuery } from '@tanstack/react-query';
+import { familyTreeService } from '@/services/family-tree.service';
+import type { Gender, ParentPair } from '@/types/family-tree';
 
 export interface PersonDraft {
-  parentId?: string;
+  parent?: ParentPair | null;
   name: string;
   gender: Gender;
   birthDate: string;
@@ -34,10 +32,9 @@ export function PersonFormFields({
 }: PersonFormFieldsProps) {
   const [parentKeyword, setParentKeyword] = useState('');
   const [debouncedParentKeyword, setDebouncedParentKeyword] = useState('');
-  const [selectedParent, setSelectedParent] = useState<Person | null>(null);
+  const [selectedParentLabel, setSelectedParentLabel] = useState<string | null>(null);
   const [isParentDropdownOpen, setIsParentDropdownOpen] = useState(false);
   const parentDropdownRef = useRef<HTMLDivElement | null>(null);
-  const parentListRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -67,35 +64,46 @@ export function PersonFormFields({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isParentDropdownOpen]);
 
-  const parentQuery = useInfiniteQuery({
-    queryKey: ['person-list', 'dropdown', queryScope, debouncedParentKeyword],
-    queryFn: ({ pageParam = 0 }) =>
-      personService.getPersonList({
-        limit: PAGE_SIZE,
-        offset: pageParam,
-        name: debouncedParentKeyword,
-      }),
-    getNextPageParam: (lastPage, allPages) => {
-      if (lastPage.data.length < PAGE_SIZE) {
-        return undefined;
-      }
-      return allPages.length * PAGE_SIZE;
-    },
-    initialPageParam: 0,
+  const parentQuery = useQuery({
+    queryKey: ['family-tree', 'married-couples', queryScope],
+    queryFn: familyTreeService.getMarriedCouples,
     enabled: parentEnabled,
   });
 
-  const parentOptions = useMemo(() => {
-    const merged = parentQuery.data?.pages.flatMap((page) => page.data) ?? [];
-    const seen = new Set<string>();
-    return merged.filter((person) => {
-      if (seen.has(person.id)) {
-        return false;
-      }
-      seen.add(person.id);
-      return true;
-    });
-  }, [parentQuery.data]);
+  const parentOptions = useMemo(
+    () =>
+      (parentQuery.data?.data ?? []).map((couple) => ({
+        label: `${couple.father.name} & ${couple.mother.name}`,
+        parent: {
+          fatherId: couple.father.id,
+          motherId: couple.mother.id,
+        } satisfies ParentPair,
+      })),
+    [parentQuery.data],
+  );
+
+  useEffect(() => {
+    if (!value.parent) {
+      setSelectedParentLabel(null);
+      return;
+    }
+
+    const selected = parentOptions.find(
+      (option) =>
+        option.parent.fatherId === value.parent?.fatherId &&
+        option.parent.motherId === value.parent?.motherId,
+    );
+    setSelectedParentLabel(selected?.label ?? null);
+  }, [parentOptions, value.parent]);
+
+  const filteredParentOptions = useMemo(() => {
+    const keyword = debouncedParentKeyword.trim().toLowerCase();
+    if (!keyword) {
+      return parentOptions;
+    }
+
+    return parentOptions.filter((option) => option.label.toLowerCase().includes(keyword));
+  }, [debouncedParentKeyword, parentOptions]);
 
   return (
     <div className="flex flex-col gap-3">
@@ -105,13 +113,13 @@ export function PersonFormFields({
           <span className="text-sm font-medium text-[#242424]">Orang tua</span>
           <div className="relative" ref={parentDropdownRef}>
             <input
-              value={selectedParent ? selectedParent.name : parentKeyword}
+              value={selectedParentLabel ?? parentKeyword}
               onFocus={() => setIsParentDropdownOpen(true)}
               onChange={(event) => {
-                setSelectedParent(null);
+                setSelectedParentLabel(null);
                 setParentKeyword(event.target.value);
                 setIsParentDropdownOpen(true);
-                onChange({ ...value, parentId: undefined });
+                onChange({ ...value, parent: null });
               }}
               className="h-10 w-full rounded-lg border border-[#D9D9D9] px-3 text-sm outline-none focus:border-[#65587a]"
               placeholder="Cari orang tua"
@@ -120,47 +128,35 @@ export function PersonFormFields({
             {isParentDropdownOpen ? (
               <div
                 className="absolute z-20 mt-1 max-h-52 w-full overflow-auto rounded-lg border border-[#E0E0E0] bg-white shadow-sm"
-                onScroll={(event) => {
-                  const target = event.currentTarget;
-                  const reachedBottom =
-                    target.scrollHeight - target.scrollTop - target.clientHeight < 12;
-
-                  if (reachedBottom && parentQuery.hasNextPage && !parentQuery.isFetchingNextPage) {
-                    parentQuery.fetchNextPage();
-                  }
-                }}
               >
                 <button
                   type="button"
                   onClick={() => {
-                    setSelectedParent(null);
+                    setSelectedParentLabel(null);
                     setParentKeyword('');
                     setIsParentDropdownOpen(false);
-                    onChange({ ...value, parentId: undefined });
+                    onChange({ ...value, parent: null });
                   }}
                   className="w-full px-3 py-2 text-left text-sm text-[#606060] hover:bg-[#F7F7F7]"
                 >
                   Tanpa orang tua
                 </button>
-                {parentOptions.map((person) => (
+                {filteredParentOptions.map((option) => (
                   <button
                     type="button"
-                    key={person.id}
+                    key={`${option.parent.fatherId}-${option.parent.motherId}`}
                     onClick={() => {
-                      setSelectedParent(person);
-                      setParentKeyword(person.name);
+                      setSelectedParentLabel(option.label);
+                      setParentKeyword(option.label);
                       setIsParentDropdownOpen(false);
-                      onChange({ ...value, parentId: person.id });
+                      onChange({ ...value, parent: option.parent });
                     }}
                     className="w-full px-3 py-2 text-left text-sm text-[#242424] hover:bg-[#F7F7F7]"
                   >
-                    {person.name}
+                    {option.label}
                   </button>
                 ))}
-                {parentQuery.isFetchingNextPage ? (
-                  <p className="px-3 py-2 text-xs text-[#8A8A8A]">Loading more...</p>
-                ) : null}
-                {!parentQuery.isLoading && parentOptions.length === 0 ? (
+                {!parentQuery.isLoading && filteredParentOptions.length === 0 ? (
                   <p className="px-3 py-2 text-xs text-[#8A8A8A]">Data tidak ditemukan.</p>
                 ) : null}
               </div>

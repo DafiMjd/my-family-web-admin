@@ -5,6 +5,11 @@ export const Gender = {
 
 export type Gender = (typeof Gender)[keyof typeof Gender];
 
+export interface ParentPair {
+  fatherId: string;
+  motherId: string;
+}
+
 export interface Person {
   id: string;
   name: string;
@@ -30,6 +35,7 @@ export interface FamilyRoot {
   father: Person | null;
   mother: Person | null;
   isMarried: boolean;
+  endMarriageDate: string | null;
 }
 
 export interface FamilyRootsResponse {
@@ -38,9 +44,22 @@ export interface FamilyRootsResponse {
   count: number;
 }
 
+/** Matches GET /api/family-tree/married-couples */
+export interface MarriedCoupleEntry {
+  father: Person & { relationshipType: string; spouses: unknown[] };
+  mother: Person & { relationshipType: string; spouses: unknown[] };
+}
+
+export interface MarriedCouplesResponse {
+  success: boolean;
+  data: MarriedCoupleEntry[];
+  count: number;
+}
+
 export interface PersonWithSpouse extends Person {
   relationshipType: string;
   spouse: Person | null;
+  endMarriageDate: string | null;
 }
 
 export interface FamilyChildrenResponse {

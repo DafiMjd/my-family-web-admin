@@ -1,8 +1,8 @@
 import { clearTokens, getRefreshToken, getToken, setTokens } from './auth-storage';
 import type { RefreshTokenResponse } from '@/types/auth';
 
-// const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
-const BASE_URL = 'http://76.13.192.114:3001';
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
+// const BASE_URL = 'http://76.13.192.114:3001';
 
 export class ApiError extends Error {
   constructor(

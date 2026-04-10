@@ -13,7 +13,7 @@ function EditPersonPageContent() {
   const personId = searchParams.get('id') ?? '';
 
   const [form, setForm] = useState<PersonDraft>({
-    parentId: undefined,
+    parent: null,
     name: '',
     gender: 'MAN',
     birthDate: '',
@@ -34,7 +34,7 @@ function EditPersonPageContent() {
     }
 
     setForm({
-      parentId: undefined,
+      parent: null,
       name: person.name,
       gender: person.gender,
       birthDate: person.birthDate ? person.birthDate.slice(0, 10) : '',
@@ -45,7 +45,6 @@ function EditPersonPageContent() {
   const updatePersonMutation = useMutation({
     mutationFn: () =>
       personService.updatePerson(personId, {
-        parentId: form.parentId,
         name: form.name.trim(),
         gender: form.gender,
         birthDate: form.birthDate,

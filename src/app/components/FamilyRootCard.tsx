@@ -12,6 +12,7 @@ type Align = 'left' | 'right';
 
 export interface FamilyRootCardProps {
   people: Person[];
+  endMarriageDate: string | null;
   align?: Align;
   isTappable?: boolean;
   onTap?: (person: Person, people: Person[]) => void;
@@ -24,8 +25,20 @@ function getPersonRole(person: Person): string {
   return 'Istri';
 }
 
-function formatDate(iso: string): string {
-  return iso.slice(0, 10);
+function getDisplayName(member: Person): string {
+  if (member.deathDate) {
+    return `Alm. ${member.name}`;
+  }
+
+  return member.name;
+}
+
+function hasEndedMarriageDate(endMarriageDate: string | null): boolean {
+  if (!endMarriageDate) {
+    return false;
+  }
+
+  return typeof endMarriageDate === 'string' && endMarriageDate.length > 0;
 }
 
 // ─── Person Row ───────────────────────────────────────────────────────────────
@@ -49,7 +62,7 @@ function PersonRow({ member, role, align }: PersonRowProps) {
           </span>
         )}
         <span className="max-w-full truncate text-[16px] font-semibold text-[#242424] font-sora leading-normal">
-          {member.name}
+          {getDisplayName(member)}
         </span>
         {member.birthDate && (
           <Birthdate birthDate={member.birthDate} align={align} />
@@ -71,14 +84,14 @@ function CardHeader({ align }: { align: Align }) {
           <div className="flex items-center gap-1">
             <Image src="/ic_love.svg" alt="" width={16} height={16} />
             <span className="text-[12px] font-semibold text-[#909090] font-sora">
-              Married Couple
+              Pasangan
             </span>
           </div>
         </>
       ) : (
         <>
           <span className="text-[12px] font-semibold text-[#909090] font-sora">
-            Married Couple
+            Pasangan
           </span>
           <Image src="/ic_love.svg" alt="" width={16} height={16} />
         </>
@@ -93,9 +106,11 @@ export function FamilyRootCard({
   people,
   align = 'left',
   isTappable = false,
+  endMarriageDate,
   onTap,
 }: FamilyRootCardProps) {
   const isMarried = people.length > 1;
+  const isEndedMarriage = hasEndedMarriageDate(endMarriageDate);
 
   if (people.length === 0) {
     return null;
@@ -115,7 +130,7 @@ export function FamilyRootCard({
 
   return (
     <div
-      className={`bg-white rounded-lg w-80 p-2 flex flex-col gap-2 shadow-sm ${canTap ? 'cursor-pointer active:scale-[0.99] transition-transform' : ''
+      className={`${isEndedMarriage ? 'bg-[#e5e5e5]' : 'bg-white'} rounded-lg w-80 p-2 flex flex-col gap-2 shadow-sm ${canTap ? 'cursor-pointer active:scale-[0.99] transition-transform' : ''
         }`}
       onClick={handleTap}
       role={canTap ? 'button' : undefined}

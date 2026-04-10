@@ -2,7 +2,10 @@ import { apiClient } from '@/lib/api-client';
 import type { LatestPeopleResponse, PersonListResponse } from '@/types/family-tree';
 
 interface CreatePersonRequest {
-  parentId?: string;
+  parent?: {
+    fatherId: string;
+    motherId: string;
+  } | null;
   name: string;
   gender: 'MAN' | 'WOMAN';
   birthDate: string;
@@ -17,7 +20,10 @@ interface DeletePersonRequest {
 }
 
 interface FamilyPersonPayload {
-  parentId?: string;
+  parent?: {
+    fatherId: string;
+    motherId: string;
+  } | null;
   name: string;
   gender: 'MAN' | 'WOMAN';
   birthDate: string;
@@ -27,7 +33,7 @@ interface FamilyPersonPayload {
 interface CreateFamilyRequest {
   father: FamilyPersonPayload;
   mother: FamilyPersonPayload;
-  children: Array<Omit<FamilyPersonPayload, 'parentId'>>;
+  children: Array<Omit<FamilyPersonPayload, 'parent'>>;
 }
 
 interface MarriagePersonPayload {
@@ -39,6 +45,7 @@ interface CreateMarriageRequest {
   person1: MarriagePersonPayload;
   person2: MarriagePersonPayload;
   startDate?: string;
+  endDate?: string;
 }
 
 export const personService = {
