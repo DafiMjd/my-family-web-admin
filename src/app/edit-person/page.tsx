@@ -1,12 +1,12 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { Suspense, useEffect, useMemo, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { PersonFormFields, type PersonDraft } from '@/app/components/PersonFormFields';
 import { personService } from '@/services/person.service';
 
-export default function EditPersonPage() {
+function EditPersonPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const queryClient = useQueryClient();
@@ -141,5 +141,19 @@ export default function EditPersonPage() {
         </div>
       </form>
     </main>
+  );
+}
+
+export default function EditPersonPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="min-h-dvh flex items-center justify-center bg-[#F5F5F5] p-4">
+          <div className="rounded-xl bg-white border border-[#E0E0E0] p-5 text-sm text-[#606060]">Memuat...</div>
+        </main>
+      }
+    >
+      <EditPersonPageContent />
+    </Suspense>
   );
 }
