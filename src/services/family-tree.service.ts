@@ -4,11 +4,11 @@ import type {
   FamilyChildrenResponse,
   FamilyListResponse,
   FamilyRoot,
+  FamilyRootsResponse,
   MarriedCouplesResponse,
   Person,
-  PersonWithSpouse,
   PersonListResponse,
-  FamilyRootsResponse,
+  PersonWithSpouse,
 } from '@/types/family-tree';
 
 interface PersonWithMarriageDates extends Person {
@@ -77,18 +77,24 @@ function mapChildItemToPeopleWithSpouse(item: FamilyChildApiItem): PersonWithSpo
   }));
 }
 
-interface AddChildrenRequestItem {
-  name: string;
-  gender: 'MAN' | 'WOMAN';
-  birthDate: string;
-  deathDate?: string;
-}
+export type AddChildrenRequestItem =
+  | { personId: string }
+  | {
+      newPerson: {
+        name: string;
+        gender: 'MAN' | 'WOMAN';
+        birthDate: string;
+        deathDate?: string | null;
+        bio?: string | null;
+        profilePictureUrl?: string | null;
+      };
+    };
 
-interface AddChildrenRequest {
+export interface AddChildrenRequest {
   parent: {
     fatherId: string;
     motherId: string;
-  } | null;
+  };
   children: AddChildrenRequestItem[];
 }
 
@@ -158,4 +164,8 @@ export const familyTreeService = {
       method: 'POST',
       body: JSON.stringify(body),
     }),
+  getChildrenCandidates: (limit = 100, offset = 0): Promise<PersonListResponse> =>
+    apiClient<PersonListResponse>(
+      `/api/family-tree/children-candidate?limit=${limit}&offset=${offset}`,
+    ),
 };

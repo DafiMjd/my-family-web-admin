@@ -3,27 +3,19 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { PersonFormFields, type PersonDraft } from '@/app/components/PersonFormFields';
+import {
+  AddChildModal,
+  type ChildListEntry,
+} from '@/app/components/AddChildModal';
 import { familyTreeService } from '@/services/family-tree.service';
 import type { ParentPair } from '@/types/family-tree';
-
-function createEmptyPerson(gender: 'MAN' | 'WOMAN'): PersonDraft {
-  return {
-    parent: null,
-    name: '',
-    gender,
-    birthDate: '',
-    deathDate: '',
-  };
-}
 
 export default function AddFamilyChildrenPage() {
   const router = useRouter();
   const [parent, setParent] = useState<ParentPair | null>(null);
   const [parentKeyword, setParentKeyword] = useState('');
   const [isParentDropdownOpen, setIsParentDropdownOpen] = useState(false);
-  const [children, setChildren] = useState<PersonDraft[]>([]);
-  const [childForm, setChildForm] = useState<PersonDraft>(createEmptyPerson('MAN'));
+  const [children, setChildren] = useState<ChildListEntry[]>([]);
   const [editingChildIndex, setEditingChildIndex] = useState<number | null>(null);
   const [isChildModalOpen, setIsChildModalOpen] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -84,13 +76,19 @@ export default function AddFamilyChildrenPage() {
   const addChildrenMutation = useMutation({
     mutationFn: () =>
       familyTreeService.addChildren({
-        parent: parent,
-        children: children.map((child) => ({
-          name: child.name.trim(),
-          gender: child.gender,
-          birthDate: child.birthDate,
-          ...(child.deathDate ? { deathDate: child.deathDate } : {}),
-        })),
+        parent: parent!,
+        children: children.map((entry) =>
+          entry.kind === 'existing'
+            ? { personId: entry.person.id }
+            : {
+                newPerson: {
+                  name: entry.draft.name.trim(),
+                  gender: entry.draft.gender,
+                  birthDate: entry.draft.birthDate,
+                  ...(entry.draft.deathDate ? { deathDate: entry.draft.deathDate } : {}),
+                },
+              },
+        ),
       }),
     onSuccess: () => {
       sessionStorage.setItem('dashboard_toast', 'children-added');
@@ -101,35 +99,44 @@ export default function AddFamilyChildrenPage() {
     },
   });
 
-  const isChildFormValid = childForm.name.trim().length > 0 && childForm.birthDate.length > 0;
   const isFormValid = Boolean(parent) && children.length > 0;
+
+  const excludedChildPersonIds = useMemo(() => {
+    const ids: string[] = [];
+    for (let i = 0; i < children.length; i++) {
+      const entry = children[i];
+      if (entry.kind !== 'existing') {
+        continue;
+      }
+      if (editingChildIndex !== null && i === editingChildIndex) {
+        continue;
+      }
+      ids.push(entry.person.id);
+    }
+    return ids;
+  }, [children, editingChildIndex]);
 
   function handleOpenAddChild() {
     setEditingChildIndex(null);
-    setChildForm(createEmptyPerson('MAN'));
     setIsChildModalOpen(true);
   }
 
   function handleOpenEditChild(index: number) {
     setEditingChildIndex(index);
-    setChildForm(children[index]);
     setIsChildModalOpen(true);
   }
 
-  function handleSaveChild() {
-    if (!isChildFormValid) {
-      return;
-    }
-
+  function handleSaveChild(entry: ChildListEntry) {
     if (editingChildIndex === null) {
-      setChildren((prev) => [...prev, childForm]);
+      setChildren((prev) => [...prev, entry]);
     } else {
-      setChildren((prev) => prev.map((child, index) => (index === editingChildIndex ? childForm : child)));
+      setChildren((prev) =>
+        prev.map((child, index) => (index === editingChildIndex ? entry : child)),
+      );
     }
 
     setIsChildModalOpen(false);
     setEditingChildIndex(null);
-    setChildForm(createEmptyPerson('MAN'));
   }
 
   function handleDeleteChild(index: number) {
@@ -225,15 +232,22 @@ export default function AddFamilyChildrenPage() {
             <p className="text-sm text-[#8A8A8A]">Belum ada data anak.</p>
           ) : (
             <div className="flex flex-col gap-2">
-              {children.map((child, index) => (
+              {children.map((entry, index) => {
+                const label =
+                  entry.kind === 'existing' ? entry.person.name : entry.draft.name;
+                const gender = entry.kind === 'existing' ? entry.person.gender : entry.draft.gender;
+                const birthDate =
+                  entry.kind === 'existing' ? entry.person.birthDate.slice(0, 10) : entry.draft.birthDate;
+                const sub = entry.kind === 'existing' ? 'Orang terdaftar' : 'Data baru';
+                return (
                 <article
-                  key={`${child.name}-${index}`}
+                  key={entry.kind === 'existing' ? entry.person.id : `${label}-${index}`}
                   className="rounded-lg border border-[#E0E0E0] bg-white px-3 py-2 flex items-center justify-between gap-2"
                 >
                   <div className="min-w-0">
-                    <p className="text-sm font-semibold text-[#242424] truncate">{child.name}</p>
+                    <p className="text-sm font-semibold text-[#242424] truncate">{label}</p>
                     <p className="text-xs text-[#8A8A8A]">
-                      {child.gender === 'MAN' ? 'Laki-Laki' : 'Perempuan'} - {child.birthDate}
+                      {sub} · {gender === 'MAN' ? 'Laki-Laki' : 'Perempuan'} - {birthDate}
                     </p>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
@@ -253,7 +267,8 @@ export default function AddFamilyChildrenPage() {
                     </button>
                   </div>
                 </article>
-              ))}
+              );
+              })}
             </div>
           )}
         </section>
@@ -276,46 +291,18 @@ export default function AddFamilyChildrenPage() {
         </div>
       </form>
 
-      {isChildModalOpen ? (
-        <div
-          className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4"
-          onClick={() => setIsChildModalOpen(false)}
-        >
-          <div
-            className="w-full max-w-xl rounded-2xl bg-white p-4 md:p-5 flex flex-col gap-4"
-            onClick={(event) => event.stopPropagation()}
-          >
-            <h3 className="text-base font-semibold text-[#242424]">
-              {editingChildIndex === null ? 'Tambah Anak' : 'Edit Anak'}
-            </h3>
-
-            <PersonFormFields
-              value={childForm}
-              onChange={setChildForm}
-              parentEnabled={false}
-              queryScope="add-family-children-child"
-            />
-
-            <div className="flex items-center justify-end gap-2">
-              <button
-                type="button"
-                onClick={() => setIsChildModalOpen(false)}
-                className="px-4 py-2 rounded-lg bg-[#F0F0F0] text-[#242424] text-sm font-semibold"
-              >
-                Batal
-              </button>
-              <button
-                type="button"
-                onClick={handleSaveChild}
-                disabled={!isChildFormValid}
-                className="px-4 py-2 rounded-lg bg-[#65587a] text-white text-sm font-semibold disabled:opacity-50"
-              >
-                Simpan
-              </button>
-            </div>
-          </div>
-        </div>
-      ) : null}
+      <AddChildModal
+        open={isChildModalOpen}
+        queryKeyScope="add-family-children"
+        title={editingChildIndex === null ? 'Tambah Anak' : 'Edit Anak'}
+        editingEntry={editingChildIndex === null ? null : (children[editingChildIndex] ?? null)}
+        excludePersonIds={excludedChildPersonIds}
+        onClose={() => {
+          setIsChildModalOpen(false);
+          setEditingChildIndex(null);
+        }}
+        onSave={handleSaveChild}
+      />
     </main>
   );
 }

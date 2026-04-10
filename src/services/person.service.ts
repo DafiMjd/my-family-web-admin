@@ -30,10 +30,17 @@ interface FamilyPersonPayload {
   deathDate: string | null;
 }
 
+/** New child: person fields only; parents are `father` / `mother` on the request. */
+type CreateFamilyNewChildPayload = Omit<FamilyPersonPayload, 'parent'>;
+
+export type CreateFamilyChildPayload =
+  | { personId: string }
+  | { newPerson: CreateFamilyNewChildPayload };
+
 interface CreateFamilyRequest {
   father: FamilyPersonPayload;
   mother: FamilyPersonPayload;
-  children: Array<Omit<FamilyPersonPayload, 'parent'>>;
+  children: CreateFamilyChildPayload[];
 }
 
 interface MarriagePersonPayload {
