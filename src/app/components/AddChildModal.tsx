@@ -2,23 +2,17 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { PersonFormFields, type PersonDraft } from '@/app/components/PersonFormFields';
+import {
+  PersonFormFields,
+  createEmptyPerson,
+  type PersonDraft,
+} from '@/app/components/PersonFormFields';
 import { familyTreeService } from '@/services/family-tree.service';
 import type { Person } from '@/types/family-tree';
 
 export type ChildListEntry =
   | { kind: 'existing'; person: Person }
   | { kind: 'new'; draft: PersonDraft };
-
-function createEmptyPerson(gender: 'MAN' | 'WOMAN'): PersonDraft {
-  return {
-    parent: null,
-    name: '',
-    gender,
-    birthDate: '',
-    deathDate: '',
-  };
-}
 
 interface AddChildModalProps {
   open: boolean;

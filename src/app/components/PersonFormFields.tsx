@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { familyTreeService } from '@/services/family-tree.service';
 import type { Gender, ParentPair } from '@/types/family-tree';
+import { ProfilePhotoDropzone } from '@/app/components/ProfilePhotoDropzone';
 
 export interface PersonDraft {
   parent?: ParentPair | null;
@@ -11,6 +12,19 @@ export interface PersonDraft {
   gender: Gender;
   birthDate: string;
   deathDate: string;
+  /** Pending or permanent profile image URL from upload API; null = none */
+  profilePictureUrl: string | null;
+}
+
+export function createEmptyPerson(gender: Gender): PersonDraft {
+  return {
+    parent: null,
+    name: '',
+    gender,
+    birthDate: '',
+    deathDate: '',
+    profilePictureUrl: null,
+  };
 }
 
 interface PersonFormFieldsProps {
@@ -20,6 +34,8 @@ interface PersonFormFieldsProps {
   parentEnabled?: boolean;
   parentNote?: string;
   queryScope: string;
+  /** When false, hides profile photo upload (default true). */
+  profilePhotoEnabled?: boolean;
 }
 
 export function PersonFormFields({
@@ -29,6 +45,7 @@ export function PersonFormFields({
   parentEnabled = true,
   parentNote,
   queryScope,
+  profilePhotoEnabled = true,
 }: PersonFormFieldsProps) {
   const [parentKeyword, setParentKeyword] = useState('');
   const [debouncedParentKeyword, setDebouncedParentKeyword] = useState('');
@@ -215,6 +232,14 @@ export function PersonFormFields({
           Hapus tanggal meninggal
         </button>
       </label>
+
+
+      {profilePhotoEnabled ? (
+        <ProfilePhotoDropzone
+          value={value.profilePictureUrl}
+          onChange={(url) => onChange({ ...value, profilePictureUrl: url })}
+        />
+      ) : null}
     </div>
   );
 }

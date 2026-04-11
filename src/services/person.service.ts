@@ -10,9 +10,16 @@ interface CreatePersonRequest {
   gender: 'MAN' | 'WOMAN';
   birthDate: string;
   deathDate: string | null;
+  profilePictureUrl?: string | null;
 }
 
-interface UpdatePersonRequest extends CreatePersonRequest {}
+interface UpdatePersonRequest {
+  name?: string;
+  gender?: 'MAN' | 'WOMAN';
+  birthDate?: string;
+  deathDate?: string | null;
+  profilePictureUrl?: string | null;
+}
 interface DeletePersonRequest {
   id: string;
   deleteSpouse: boolean;
@@ -28,6 +35,7 @@ interface FamilyPersonPayload {
   gender: 'MAN' | 'WOMAN';
   birthDate: string;
   deathDate: string | null;
+  profilePictureUrl?: string | null;
 }
 
 /** New child: person fields only; parents are `father` / `mother` on the request. */

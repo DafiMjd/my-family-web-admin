@@ -86,6 +86,9 @@ export default function AddFamilyChildrenPage() {
                   gender: entry.draft.gender,
                   birthDate: entry.draft.birthDate,
                   ...(entry.draft.deathDate ? { deathDate: entry.draft.deathDate } : {}),
+                  ...(entry.draft.profilePictureUrl
+                    ? { profilePictureUrl: entry.draft.profilePictureUrl }
+                    : {}),
                 },
               },
         ),

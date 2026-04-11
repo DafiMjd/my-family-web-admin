@@ -100,3 +100,60 @@ export async function apiClient<T>(path: string, init?: RequestInit): Promise<T>
 
   return json as T;
 }
+
+/**
+ * POST multipart/form-data (e.g. file upload). Do not set `Content-Type` — the browser sets the boundary.
+ */
+export async function apiClientFormData<T>(path: string, formData: FormData): Promise<T> {
+  const token = getToken();
+
+  const res = await fetch(`${BASE_URL}${path}`, {
+    method: 'POST',
+    headers: {
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    body: formData,
+  });
+
+  const json: unknown = await res.json();
+
+  const isUnauthorized =
+    typeof json === 'object' &&
+    json !== null &&
+    'success' in json &&
+    !(json as { success: unknown }).success &&
+    'error' in json &&
+    (json as { error: unknown }).error === 'UNAUTHORIZED';
+
+  if (isUnauthorized) {
+    if (!refreshPromise) {
+      refreshPromise = tryRefreshToken().finally(() => {
+        refreshPromise = null;
+      });
+    }
+
+    const refreshed = await refreshPromise;
+
+    if (refreshed) {
+      return apiClientFormData<T>(path, formData);
+    }
+
+    redirectToLogin();
+    throw new ApiError(401, 'Session expired. Please log in again.');
+  }
+
+  if (!res.ok) {
+    throw new ApiError(res.status, `Request failed: ${res.status} ${res.statusText}`);
+  }
+
+  if (
+    typeof json !== 'object' ||
+    json === null ||
+    !('success' in json) ||
+    !(json as { success: unknown }).success
+  ) {
+    throw new ApiError(res.status, 'API returned an unsuccessful response');
+  }
+
+  return json as T;
+}

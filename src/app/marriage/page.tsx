@@ -3,21 +3,11 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useInfiniteQuery, useMutation } from '@tanstack/react-query';
-import { PersonFormFields, type PersonDraft } from '@/app/components/PersonFormFields';
+import { PersonFormFields, createEmptyPerson, type PersonDraft } from '@/app/components/PersonFormFields';
 import { personService } from '@/services/person.service';
 import type { Person } from '@/types/family-tree';
 
 const PAGE_SIZE = 10;
-
-function createEmptyPerson(gender: 'MAN' | 'WOMAN'): PersonDraft {
-  return {
-    parent: null,
-    name: '',
-    gender,
-    birthDate: '',
-    deathDate: '',
-  };
-}
 
 function PersonSearchSelect({
   gender,
@@ -172,6 +162,9 @@ export default function MarriagePage() {
                 gender: 'MAN',
                 birthDate: newHusband.birthDate,
                 deathDate: newHusband.deathDate || null,
+                ...(newHusband.profilePictureUrl
+                  ? { profilePictureUrl: newHusband.profilePictureUrl }
+                  : {}),
               },
             }
           : { personId: selectedHusband?.id },
@@ -183,6 +176,7 @@ export default function MarriagePage() {
                 gender: 'WOMAN',
                 birthDate: newWife.birthDate,
                 deathDate: newWife.deathDate || null,
+                ...(newWife.profilePictureUrl ? { profilePictureUrl: newWife.profilePictureUrl } : {}),
               },
             }
           : { personId: selectedWife?.id },

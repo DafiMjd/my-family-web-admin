@@ -14,6 +14,7 @@ export default function AddPersonPage() {
     gender: 'MAN',
     birthDate: '',
     deathDate: '',
+    profilePictureUrl: null,
   });
   const [submitError, setSubmitError] = useState<string | null>(null);
 
@@ -25,6 +26,7 @@ export default function AddPersonPage() {
         gender: form.gender,
         birthDate: form.birthDate,
         deathDate: form.deathDate || null,
+        ...(form.profilePictureUrl ? { profilePictureUrl: form.profilePictureUrl } : {}),
       }),
     onSuccess: () => {
       sessionStorage.setItem('dashboard_toast', 'person-added');

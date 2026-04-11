@@ -29,6 +29,7 @@ export default function AddFamilyPage() {
           gender: 'MAN',
           birthDate: father.birthDate,
           deathDate: father.deathDate || null,
+          ...(father.profilePictureUrl ? { profilePictureUrl: father.profilePictureUrl } : {}),
         },
         mother: {
           parent: mother.parent ?? null,
@@ -36,6 +37,7 @@ export default function AddFamilyPage() {
           gender: 'WOMAN',
           birthDate: mother.birthDate,
           deathDate: mother.deathDate || null,
+          ...(mother.profilePictureUrl ? { profilePictureUrl: mother.profilePictureUrl } : {}),
         },
         children: children.map((entry) =>
           entry.kind === 'existing'
@@ -46,6 +48,9 @@ export default function AddFamilyPage() {
                   gender: entry.draft.gender,
                   birthDate: entry.draft.birthDate,
                   deathDate: entry.draft.deathDate || null,
+                  ...(entry.draft.profilePictureUrl
+                    ? { profilePictureUrl: entry.draft.profilePictureUrl }
+                    : {}),
                 },
               },
         ),
