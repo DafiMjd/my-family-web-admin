@@ -40,7 +40,7 @@ function DateInputWithPicker({ label, value, onChange, clearLabel }: DateInputWi
   }
 
   return (
-    <label className="flex flex-col gap-1">
+    <div className="flex flex-col gap-1">
       <span className="text-sm font-medium text-[#242424]">{label}</span>
       <div className="flex gap-2">
         <input
@@ -51,22 +51,23 @@ function DateInputWithPicker({ label, value, onChange, clearLabel }: DateInputWi
           className="h-10 flex-1 rounded-lg border border-[#D9D9D9] px-3 text-sm outline-none focus:border-[#65587a]"
           placeholder="YYYY-MM-DD"
         />
-        <button
-          type="button"
-          onClick={handleOpenPicker}
-          className="h-10 rounded-lg border border-[#D9D9D9] px-3 text-xs font-semibold text-[#65587a] hover:bg-[#F7F7F7]"
-        >
-          Pilih
-        </button>
-        <input
-          ref={nativeDateRef}
-          type="date"
-          value={value}
-          onChange={(event) => onChange(event.target.value)}
-          className="sr-only"
-          tabIndex={-1}
-          aria-hidden
-        />
+        <div className="relative h-10">
+          <button
+            type="button"
+            onClick={handleOpenPicker}
+            className="h-10 rounded-lg border border-[#D9D9D9] px-3 text-xs font-semibold text-[#65587a] hover:bg-[#F7F7F7]"
+          >
+            Pilih
+          </button>
+          <input
+            ref={nativeDateRef}
+            type="date"
+            value={value}
+            onChange={(event) => onChange(event.target.value)}
+            className="absolute inset-0 h-10 w-full cursor-pointer opacity-0"
+            aria-label={`Pilih ${label.toLowerCase()}`}
+          />
+        </div>
       </div>
       <button
         type="button"
@@ -75,7 +76,7 @@ function DateInputWithPicker({ label, value, onChange, clearLabel }: DateInputWi
       >
         {clearLabel}
       </button>
-    </label>
+    </div>
   );
 }
 
