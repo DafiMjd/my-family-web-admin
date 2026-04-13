@@ -24,7 +24,7 @@ export default function AddPersonPage() {
         parent: form.parent ?? null,
         name: form.name.trim(),
         gender: form.gender,
-        birthDate: form.birthDate,
+        birthDate: form.birthDate || null,
         deathDate: form.deathDate || null,
         ...(form.profilePictureUrl ? { profilePictureUrl: form.profilePictureUrl } : {}),
       }),
@@ -37,7 +37,7 @@ export default function AddPersonPage() {
     },
   });
 
-  const isFormValid = form.name.trim().length > 0 && form.birthDate.length > 0;
+  const isFormValid = form.name.trim().length > 0;
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();

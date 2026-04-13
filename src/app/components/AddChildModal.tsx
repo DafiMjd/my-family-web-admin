@@ -107,8 +107,7 @@ export function AddChildModal({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isPickOpen]);
 
-  const isNewFormValid =
-    childForm.name.trim().length > 0 && childForm.birthDate.trim().length > 0;
+  const isNewFormValid = childForm.name.trim().length > 0;
   const canSave = useExistingPerson ? Boolean(selectedPerson) : isNewFormValid;
 
   function handleSave() {

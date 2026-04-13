@@ -16,6 +16,69 @@ export interface PersonDraft {
   profilePictureUrl: string | null;
 }
 
+interface DateInputWithPickerProps {
+  label: string;
+  value: string;
+  onChange: (next: string) => void;
+  clearLabel: string;
+}
+
+function DateInputWithPicker({ label, value, onChange, clearLabel }: DateInputWithPickerProps) {
+  const nativeDateRef = useRef<HTMLInputElement | null>(null);
+
+  function handleOpenPicker() {
+    if (!nativeDateRef.current) {
+      return;
+    }
+
+    if (typeof nativeDateRef.current.showPicker === 'function') {
+      nativeDateRef.current.showPicker();
+      return;
+    }
+
+    nativeDateRef.current.click();
+  }
+
+  return (
+    <label className="flex flex-col gap-1">
+      <span className="text-sm font-medium text-[#242424]">{label}</span>
+      <div className="flex gap-2">
+        <input
+          type="text"
+          inputMode="numeric"
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+          className="h-10 flex-1 rounded-lg border border-[#D9D9D9] px-3 text-sm outline-none focus:border-[#65587a]"
+          placeholder="YYYY-MM-DD"
+        />
+        <button
+          type="button"
+          onClick={handleOpenPicker}
+          className="h-10 rounded-lg border border-[#D9D9D9] px-3 text-xs font-semibold text-[#65587a] hover:bg-[#F7F7F7]"
+        >
+          Pilih
+        </button>
+        <input
+          ref={nativeDateRef}
+          type="date"
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+          className="sr-only"
+          tabIndex={-1}
+          aria-hidden
+        />
+      </div>
+      <button
+        type="button"
+        onClick={() => onChange('')}
+        className="self-start text-xs font-medium text-[#65587a] hover:underline"
+      >
+        {clearLabel}
+      </button>
+    </label>
+  );
+}
+
 export function createEmptyPerson(gender: Gender): PersonDraft {
   return {
     parent: null,
@@ -206,32 +269,19 @@ export function PersonFormFields({
         </select>
       </label>
 
-      <label className="flex flex-col gap-1">
-        <span className="text-sm font-medium text-[#242424]">Tanggal Lahir</span>
-        <input
-          type="date"
-          value={value.birthDate}
-          onChange={(event) => onChange({ ...value, birthDate: event.target.value })}
-          className="h-10 rounded-lg border border-[#D9D9D9] px-3 text-sm outline-none focus:border-[#65587a]"
-        />
-      </label>
+      <DateInputWithPicker
+        label="Tanggal Lahir"
+        value={value.birthDate}
+        onChange={(next) => onChange({ ...value, birthDate: next })}
+        clearLabel="Hapus tanggal lahir"
+      />
 
-      <label className="flex flex-col gap-1">
-        <span className="text-sm font-medium text-[#242424]">Tanggal Meninggal</span>
-        <input
-          type="date"
-          value={value.deathDate}
-          onChange={(event) => onChange({ ...value, deathDate: event.target.value })}
-          className="h-10 rounded-lg border border-[#D9D9D9] px-3 text-sm outline-none focus:border-[#65587a]"
-        />
-        <button
-          type="button"
-          onClick={() => onChange({ ...value, deathDate: '' })}
-          className="self-start text-xs font-medium text-[#65587a] hover:underline"
-        >
-          Hapus tanggal meninggal
-        </button>
-      </label>
+      <DateInputWithPicker
+        label="Tanggal Meninggal"
+        value={value.deathDate}
+        onChange={(next) => onChange({ ...value, deathDate: next })}
+        clearLabel="Hapus tanggal meninggal"
+      />
 
 
       {profilePhotoEnabled ? (

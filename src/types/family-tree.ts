@@ -14,7 +14,7 @@ export interface Person {
   id: string;
   name: string;
   gender: Gender;
-  birthDate: string;
+  birthDate: string | null;
   deathDate: string | null;
   bio: string | null;
   profilePictureUrl: string | null;

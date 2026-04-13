@@ -23,7 +23,10 @@ function dateToAge(date: string): string {
     return '0 tahun';
 }
 
-export default function Birthdate({ birthDate, align }: { birthDate: string, align?: 'left' | 'right' }) {
+export default function Birthdate({ birthDate, align }: { birthDate: string | null, align?: 'left' | 'right' }) {
+    if (!birthDate) {
+        return null;
+    }
     const usedAlign = align || 'left';
     const flexAlign = usedAlign === 'left' ? 'flex-row' : 'flex-row-reverse';
     return (

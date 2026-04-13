@@ -123,7 +123,7 @@ function PersonSearchSelect({
         <div className="rounded-lg border border-[#E0E0E0] bg-[#FAFAFA] p-3">
           <p className="text-sm font-semibold text-[#242424]">{selected.name}</p>
           <p className="text-xs text-[#8A8A8A]">
-            {selected.gender === 'MAN' ? 'Laki-Laki' : 'Perempuan'} - {selected.birthDate.slice(0, 10)}
+            {selected.gender === 'MAN' ? 'Laki-Laki' : 'Perempuan'} - {selected.birthDate?.slice(0, 10) ?? '-'}
           </p>
         </div>
       ) : null}
@@ -144,10 +144,10 @@ export default function MarriagePage() {
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   const isHusbandValid = isNewHusband
-    ? newHusband.name.trim().length > 0 && newHusband.birthDate.length > 0
+    ? newHusband.name.trim().length > 0
     : Boolean(selectedHusband);
   const isWifeValid = isNewWife
-    ? newWife.name.trim().length > 0 && newWife.birthDate.length > 0
+    ? newWife.name.trim().length > 0
     : Boolean(selectedWife);
   const isFormValid = isHusbandValid && isWifeValid;
 
@@ -160,7 +160,7 @@ export default function MarriagePage() {
                 parent: newHusband.parent ?? null,
                 name: newHusband.name.trim(),
                 gender: 'MAN',
-                birthDate: newHusband.birthDate,
+                birthDate: newHusband.birthDate || null,
                 deathDate: newHusband.deathDate || null,
                 ...(newHusband.profilePictureUrl
                   ? { profilePictureUrl: newHusband.profilePictureUrl }
@@ -174,7 +174,7 @@ export default function MarriagePage() {
                 parent: newWife.parent ?? null,
                 name: newWife.name.trim(),
                 gender: 'WOMAN',
-                birthDate: newWife.birthDate,
+                birthDate: newWife.birthDate || null,
                 deathDate: newWife.deathDate || null,
                 ...(newWife.profilePictureUrl ? { profilePictureUrl: newWife.profilePictureUrl } : {}),
               },

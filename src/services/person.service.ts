@@ -8,7 +8,7 @@ interface CreatePersonRequest {
   } | null;
   name: string;
   gender: 'MAN' | 'WOMAN';
-  birthDate: string;
+  birthDate: string | null;
   deathDate: string | null;
   profilePictureUrl?: string | null;
 }
@@ -16,7 +16,7 @@ interface CreatePersonRequest {
 interface UpdatePersonRequest {
   name?: string;
   gender?: 'MAN' | 'WOMAN';
-  birthDate?: string;
+  birthDate?: string | null;
   deathDate?: string | null;
   profilePictureUrl?: string | null;
 }
@@ -33,7 +33,7 @@ interface FamilyPersonPayload {
   } | null;
   name: string;
   gender: 'MAN' | 'WOMAN';
-  birthDate: string;
+  birthDate: string | null;
   deathDate: string | null;
   profilePictureUrl?: string | null;
 }

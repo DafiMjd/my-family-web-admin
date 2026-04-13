@@ -84,7 +84,7 @@ export default function AddFamilyChildrenPage() {
                 newPerson: {
                   name: entry.draft.name.trim(),
                   gender: entry.draft.gender,
-                  birthDate: entry.draft.birthDate,
+                  birthDate: entry.draft.birthDate || null,
                   ...(entry.draft.deathDate ? { deathDate: entry.draft.deathDate } : {}),
                   ...(entry.draft.profilePictureUrl
                     ? { profilePictureUrl: entry.draft.profilePictureUrl }
@@ -240,7 +240,7 @@ export default function AddFamilyChildrenPage() {
                   entry.kind === 'existing' ? entry.person.name : entry.draft.name;
                 const gender = entry.kind === 'existing' ? entry.person.gender : entry.draft.gender;
                 const birthDate =
-                  entry.kind === 'existing' ? entry.person.birthDate.slice(0, 10) : entry.draft.birthDate;
+                  entry.kind === 'existing' ? (entry.person.birthDate?.slice(0, 10) ?? '-') : (entry.draft.birthDate || '-');
                 const sub = entry.kind === 'existing' ? 'Orang terdaftar' : 'Data baru';
                 return (
                 <article

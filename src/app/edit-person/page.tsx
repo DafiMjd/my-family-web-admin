@@ -49,7 +49,7 @@ function EditPersonPageContent() {
       personService.updatePerson(personId, {
         name: form.name.trim(),
         gender: form.gender,
-        birthDate: form.birthDate,
+        birthDate: form.birthDate || null,
         deathDate: form.deathDate ? form.deathDate : null,
         profilePictureUrl: form.profilePictureUrl,
       }),
@@ -66,8 +66,8 @@ function EditPersonPageContent() {
   });
 
   const isFormValid = useMemo(
-    () => personId.length > 0 && form.name.trim().length > 0 && form.birthDate.length > 0,
-    [form.birthDate, form.name, personId.length],
+    () => personId.length > 0 && form.name.trim().length > 0,
+    [form.name, personId.length],
   );
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {

@@ -27,7 +27,7 @@ export default function AddFamilyPage() {
           parent: father.parent ?? null,
           name: father.name.trim(),
           gender: 'MAN',
-          birthDate: father.birthDate,
+          birthDate: father.birthDate || null,
           deathDate: father.deathDate || null,
           ...(father.profilePictureUrl ? { profilePictureUrl: father.profilePictureUrl } : {}),
         },
@@ -35,7 +35,7 @@ export default function AddFamilyPage() {
           parent: mother.parent ?? null,
           name: mother.name.trim(),
           gender: 'WOMAN',
-          birthDate: mother.birthDate,
+          birthDate: mother.birthDate || null,
           deathDate: mother.deathDate || null,
           ...(mother.profilePictureUrl ? { profilePictureUrl: mother.profilePictureUrl } : {}),
         },
@@ -46,7 +46,7 @@ export default function AddFamilyPage() {
                 newPerson: {
                   name: entry.draft.name.trim(),
                   gender: entry.draft.gender,
-                  birthDate: entry.draft.birthDate,
+                  birthDate: entry.draft.birthDate || null,
                   deathDate: entry.draft.deathDate || null,
                   ...(entry.draft.profilePictureUrl
                     ? { profilePictureUrl: entry.draft.profilePictureUrl }
@@ -64,8 +64,8 @@ export default function AddFamilyPage() {
     },
   });
 
-  const isFatherValid = father.name.trim().length > 0 && father.birthDate.length > 0;
-  const isMotherValid = mother.name.trim().length > 0 && mother.birthDate.length > 0;
+  const isFatherValid = father.name.trim().length > 0;
+  const isMotherValid = mother.name.trim().length > 0;
   const isFamilyValid = isFatherValid && isMotherValid;
 
   const excludedChildPersonIds = useMemo(() => {
@@ -185,7 +185,7 @@ export default function AddFamilyPage() {
                   entry.kind === 'existing' ? entry.person.name : entry.draft.name;
                 const gender = entry.kind === 'existing' ? entry.person.gender : entry.draft.gender;
                 const birthDate =
-                  entry.kind === 'existing' ? entry.person.birthDate.slice(0, 10) : entry.draft.birthDate;
+                  entry.kind === 'existing' ? (entry.person.birthDate?.slice(0, 10) ?? '-') : (entry.draft.birthDate || '-');
                 const sub =
                   entry.kind === 'existing'
                     ? 'Orang terdaftar'
