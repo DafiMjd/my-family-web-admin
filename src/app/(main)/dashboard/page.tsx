@@ -159,26 +159,6 @@ export default function DashboardPage() {
     router.replace('/login');
   }
 
-  function handleTapRoot(person: Person, people: Person[]) {
-    if (people.length > 1) {
-      const father = people.find((item) => item.gender === 'MAN');
-      if (!father) {
-        return;
-      }
-
-      setOpenedRoots((prev) => ({
-        ...prev,
-        [father.id]: !prev[father.id],
-      }));
-      return;
-    }
-
-    setOpenedRoots((prev) => ({
-      ...prev,
-      [person.id]: !prev[person.id],
-    }));
-  }
-
   function handleOpenAddRoute(path: '/add-person' | '/add-family' | '/marriage' | '/add-family-children') {
     router.push(path);
   }
@@ -218,13 +198,12 @@ export default function DashboardPage() {
                 const people = [root.father, root.mother].filter(
                   (person): person is Person => person !== null,
                 );
-                const father = people.find((person) => person.gender === 'MAN');
-                const rootId = father?.id ?? people[0]?.id ?? `${index}`;
-                const isOpen = Boolean(openedRoots[rootId]);
+                const rootKey = `${root.father?.id ?? 'no-father'}-${root.mother?.id ?? 'no-mother'}-${index}`;
+                const isOpen = Boolean(openedRoots[rootKey]);
 
                 return (
                   <div
-                    key={`${root.father?.id ?? 'no-father'}-${root.mother?.id ?? 'no-mother'}-${index}`}
+                    key={rootKey}
                     className="relative"
                   >
                     <div className="flex items-start">
@@ -232,7 +211,12 @@ export default function DashboardPage() {
                         people={people}
                         endMarriageDate={root.endMarriageDate}
                         isTappable
-                        onTap={handleTapRoot}
+                        onTap={() => {
+                          setOpenedRoots((prev) => ({
+                            ...prev,
+                            [rootKey]: !prev[rootKey],
+                          }));
+                        }}
                       />
 
                       {isOpen ? (

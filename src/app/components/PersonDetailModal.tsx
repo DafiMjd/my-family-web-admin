@@ -54,7 +54,7 @@ export function PersonDetailModal({ person, isOpen, onClose }: PersonDetailModal
         <div className="flex items-center justify-center flex-col gap-2">
           <Avatar member={person} size={24} />
           <span className="text-[16px] font-semibold text-[#242424] font-sora">{person.name}</span>
-          <Birthdate birthDate={person.birthDate} />
+          <Birthdate birthDate={person.birthDate} deathDate={person.deathDate} />
         </div>
 
         {isLoading ? <p className="text-sm text-[#909090] font-sora">Loading related people...</p> : null}

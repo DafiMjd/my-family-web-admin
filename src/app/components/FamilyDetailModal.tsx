@@ -19,7 +19,7 @@ function PersonCard({ person, className }: { person: Person; className?: string 
         <h3 className="text-[14px] font-semibold text-[#242424] font-sora text-center line-clamp-2">
           {person.name}
         </h3>
-        <Birthdate birthDate={person.birthDate} />
+        <Birthdate birthDate={person.birthDate} deathDate={person.deathDate} />
       </div>
     </div>
   );
@@ -42,7 +42,7 @@ function ChildRow({ child }: { child: PersonWithSpouse }) {
         <Avatar member={child} size={11} />
         <div className="min-w-0">
           <p className="text-sm font-semibold text-[#242424] font-sora line-clamp-2">{child.name}</p>
-          <Birthdate birthDate={child.birthDate} />
+          <Birthdate birthDate={child.birthDate} deathDate={child.deathDate} />
         </div>
       </div>
     </div>
