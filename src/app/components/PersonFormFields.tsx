@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { familyTreeService } from '@/services/family-tree.service';
 import type { Gender, ParentPair } from '@/types/family-tree';
 import { ProfilePhotoDropzone } from '@/app/components/ProfilePhotoDropzone';
+import { PersonDropdownThumbnail } from '@/app/components/PersonDropdownThumbnail';
 
 export interface PersonDraft {
   parent?: ParentPair | null;
@@ -14,6 +15,8 @@ export interface PersonDraft {
   deathDate: string;
   /** Pending or permanent profile image URL from upload API; null = none */
   profilePictureUrl: string | null;
+  phoneNumber: string;
+  address: string;
 }
 
 interface DateInputWithPickerProps {
@@ -88,6 +91,8 @@ export function createEmptyPerson(gender: Gender): PersonDraft {
     birthDate: '',
     deathDate: '',
     profilePictureUrl: null,
+    phoneNumber: '',
+    address: '',
   };
 }
 
@@ -151,17 +156,17 @@ export function PersonFormFields({
     enabled: parentEnabled,
   });
 
-  const parentOptions = useMemo(
-    () =>
-      (parentQuery.data?.data ?? []).map((couple) => ({
-        label: `${couple.father.name} & ${couple.mother.name}`,
-        parent: {
-          fatherId: couple.father.id,
-          motherId: couple.mother.id,
-        } satisfies ParentPair,
-      })),
-    [parentQuery.data],
-  );
+  const parentOptions = useMemo(() => {
+    return (parentQuery.data?.data ?? []).map((couple) => ({
+      label: `${couple.father.name} & ${couple.mother.name}`,
+      father: couple.father,
+      mother: couple.mother,
+      parent: {
+        fatherId: couple.father.id,
+        motherId: couple.mother.id,
+      } satisfies ParentPair,
+    }));
+  }, [parentQuery.data]);
 
   useEffect(() => {
     if (!value.parent) {
@@ -232,9 +237,13 @@ export function PersonFormFields({
                       setIsParentDropdownOpen(false);
                       onChange({ ...value, parent: option.parent });
                     }}
-                    className="w-full px-3 py-2 text-left text-sm text-[#242424] hover:bg-[#F7F7F7]"
+                    className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-[#242424] hover:bg-[#F7F7F7]"
                   >
-                    {option.label}
+                    <span className="flex shrink-0 items-center gap-0.5" aria-hidden>
+                      <PersonDropdownThumbnail person={option.father} />
+                      <PersonDropdownThumbnail person={option.mother} />
+                    </span>
+                    <span className="min-w-0 flex-1 truncate">{option.label}</span>
                   </button>
                 ))}
                 {!parentQuery.isLoading && filteredParentOptions.length === 0 ? (
@@ -284,6 +293,26 @@ export function PersonFormFields({
         clearLabel="Hapus tanggal meninggal"
       />
 
+      <label className="flex flex-col gap-1">
+        <span className="text-sm font-medium text-[#242424]">Nomor telepon (opsional)</span>
+        <input
+          type="tel"
+          value={value.phoneNumber}
+          onChange={(event) => onChange({ ...value, phoneNumber: event.target.value })}
+          className="h-10 rounded-lg border border-[#D9D9D9] px-3 text-sm outline-none focus:border-[#65587a]"
+          placeholder="Contoh: +62 …"
+        />
+      </label>
+
+      <label className="flex flex-col gap-1">
+        <span className="text-sm font-medium text-[#242424]">Alamat (opsional)</span>
+        <textarea
+          value={value.address}
+          onChange={(event) => onChange({ ...value, address: event.target.value })}
+          className="min-h-18 rounded-lg border border-[#D9D9D9] px-3 py-2 text-sm outline-none focus:border-[#65587a]"
+          placeholder="Alamat lengkap"
+        />
+      </label>
 
       {profilePhotoEnabled ? (
         <ProfilePhotoDropzone

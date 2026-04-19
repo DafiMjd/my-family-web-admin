@@ -60,6 +60,33 @@ interface PersonRowProps {
   divorcedCouple: boolean;
 }
 
+function PersonContactLines({ member, align }: { member: Person; align: Align }) {
+  const phone = member.phoneNumber?.trim();
+  const address = member.address?.trim();
+  if (!phone && !address) {
+    return null;
+  }
+
+  const textAlign = align === 'right' ? 'text-right' : 'text-left';
+
+  return (
+    <div className={`mt-0.5 flex w-full max-w-full flex-col gap-0.5 ${textAlign}`}>
+      {phone ? (
+        <span className="max-w-full truncate text-[11px] font-normal text-[#A2A2A2] font-sora">
+          {phone}
+        </span>
+      ) : null}
+      {address ? (
+        <span
+          className={`max-w-full text-[11px] font-normal text-[#A2A2A2] font-sora line-clamp-3 whitespace-pre-wrap wrap-break-word ${textAlign}`}
+        >
+          {address}
+        </span>
+      ) : null}
+    </div>
+  );
+}
+
 function PersonRow({ member, role, align, divorcedCouple }: PersonRowProps) {
   const isLeft = align === 'left';
   const rowBg = getPersonRowBackgroundColor(member, divorcedCouple);
@@ -70,7 +97,7 @@ function PersonRow({ member, role, align, divorcedCouple }: PersonRowProps) {
       style={rowBg ? { backgroundColor: rowBg } : undefined}
     >
       <Avatar member={member} />
-      <div className={`min-w-0 flex flex-col ${isLeft ? 'items-start' : 'items-end'}`}>
+      <div className={`min-w-0 flex flex-1 flex-col ${isLeft ? 'items-start' : 'items-end'}`}>
         {role && (
           <span className="max-w-full truncate text-[12px] font-normal text-[#A2A2A2] font-sora leading-[1.2]">
             {role}
@@ -82,6 +109,7 @@ function PersonRow({ member, role, align, divorcedCouple }: PersonRowProps) {
         {member.birthDate && (
           <Birthdate birthDate={member.birthDate} deathDate={member.deathDate} align={align} />
         )}
+        <PersonContactLines member={member} align={align} />
       </div>
     </div>
   );

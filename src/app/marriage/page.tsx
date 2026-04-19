@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useInfiniteQuery, useMutation } from '@tanstack/react-query';
 import { PersonFormFields, createEmptyPerson, type PersonDraft } from '@/app/components/PersonFormFields';
+import { PersonDropdownThumbnail } from '@/app/components/PersonDropdownThumbnail';
 import { personService } from '@/services/person.service';
 import type { Person } from '@/types/family-tree';
 
@@ -107,9 +108,10 @@ function PersonSearchSelect({
                   setKeyword(item.name);
                   setIsOpen(false);
                 }}
-                className="w-full px-3 py-2 text-left text-sm text-[#242424] hover:bg-[#F7F7F7]"
+                className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-[#242424] hover:bg-[#F7F7F7]"
               >
-                {item.name}
+                <PersonDropdownThumbnail person={item} />
+                <span className="min-w-0 flex-1 truncate">{item.name}</span>
               </button>
             ))}
             {!query.isLoading && options.length === 0 ? (
@@ -162,6 +164,8 @@ export default function MarriagePage() {
                 gender: 'MAN',
                 birthDate: newHusband.birthDate || null,
                 deathDate: newHusband.deathDate || null,
+                phoneNumber: newHusband.phoneNumber.trim() || null,
+                address: newHusband.address.trim() || null,
                 ...(newHusband.profilePictureUrl
                   ? { profilePictureUrl: newHusband.profilePictureUrl }
                   : {}),
@@ -176,6 +180,8 @@ export default function MarriagePage() {
                 gender: 'WOMAN',
                 birthDate: newWife.birthDate || null,
                 deathDate: newWife.deathDate || null,
+                phoneNumber: newWife.phoneNumber.trim() || null,
+                address: newWife.address.trim() || null,
                 ...(newWife.profilePictureUrl ? { profilePictureUrl: newWife.profilePictureUrl } : {}),
               },
             }

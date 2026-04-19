@@ -7,6 +7,7 @@ import {
   AddChildModal,
   type ChildListEntry,
 } from '@/app/components/AddChildModal';
+import { PersonDropdownThumbnail } from '@/app/components/PersonDropdownThumbnail';
 import { familyTreeService } from '@/services/family-tree.service';
 import type { ParentPair } from '@/types/family-tree';
 
@@ -30,6 +31,8 @@ export default function AddFamilyChildrenPage() {
     () =>
       (marriedCouplesQuery.data?.data ?? []).map((couple) => ({
         label: `${couple.father.name} & ${couple.mother.name}`,
+        father: couple.father,
+        mother: couple.mother,
         parent: {
           fatherId: couple.father.id,
           motherId: couple.mother.id,
@@ -85,6 +88,8 @@ export default function AddFamilyChildrenPage() {
                   name: entry.draft.name.trim(),
                   gender: entry.draft.gender,
                   birthDate: entry.draft.birthDate || null,
+                  phoneNumber: entry.draft.phoneNumber.trim() || null,
+                  address: entry.draft.address.trim() || null,
                   ...(entry.draft.deathDate ? { deathDate: entry.draft.deathDate } : {}),
                   ...(entry.draft.profilePictureUrl
                     ? { profilePictureUrl: entry.draft.profilePictureUrl }
@@ -200,9 +205,13 @@ export default function AddFamilyChildrenPage() {
                       setParentKeyword(option.label);
                       setIsParentDropdownOpen(false);
                     }}
-                    className="w-full px-3 py-2 text-left text-sm text-[#242424] hover:bg-[#F7F7F7]"
+                    className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-[#242424] hover:bg-[#F7F7F7]"
                   >
-                    {option.label}
+                    <span className="flex shrink-0 items-center gap-0.5" aria-hidden>
+                      <PersonDropdownThumbnail person={option.father} />
+                      <PersonDropdownThumbnail person={option.mother} />
+                    </span>
+                    <span className="min-w-0 flex-1 truncate">{option.label}</span>
                   </button>
                 ))}
                 {!marriedCouplesQuery.isLoading && filteredParentOptions.length === 0 ? (

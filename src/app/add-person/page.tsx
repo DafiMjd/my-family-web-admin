@@ -15,6 +15,8 @@ export default function AddPersonPage() {
     birthDate: '',
     deathDate: '',
     profilePictureUrl: null,
+    phoneNumber: '',
+    address: '',
   });
   const [submitError, setSubmitError] = useState<string | null>(null);
 
@@ -26,6 +28,8 @@ export default function AddPersonPage() {
         gender: form.gender,
         birthDate: form.birthDate || null,
         deathDate: form.deathDate || null,
+        phoneNumber: form.phoneNumber.trim() || null,
+        address: form.address.trim() || null,
         ...(form.profilePictureUrl ? { profilePictureUrl: form.profilePictureUrl } : {}),
       }),
     onSuccess: () => {

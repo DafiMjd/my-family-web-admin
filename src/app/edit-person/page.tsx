@@ -19,6 +19,8 @@ function EditPersonPageContent() {
     birthDate: '',
     deathDate: '',
     profilePictureUrl: null,
+    phoneNumber: '',
+    address: '',
   });
   const [submitError, setSubmitError] = useState<string | null>(null);
 
@@ -41,6 +43,8 @@ function EditPersonPageContent() {
       birthDate: person.birthDate ? person.birthDate.slice(0, 10) : '',
       deathDate: person.deathDate ? person.deathDate.slice(0, 10) : '',
       profilePictureUrl: person.profilePictureUrl ?? null,
+      phoneNumber: person.phoneNumber ?? '',
+      address: person.address ?? '',
     });
   }, [personQuery.data]);
 
@@ -52,6 +56,8 @@ function EditPersonPageContent() {
         birthDate: form.birthDate || null,
         deathDate: form.deathDate ? form.deathDate : null,
         profilePictureUrl: form.profilePictureUrl,
+        phoneNumber: form.phoneNumber.trim() || null,
+        address: form.address.trim() || null,
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['person', 'detail', personId] });

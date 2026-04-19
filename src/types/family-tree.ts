@@ -18,6 +18,8 @@ export interface Person {
   deathDate: string | null;
   bio: string | null;
   profilePictureUrl: string | null;
+  phoneNumber: string | null;
+  address: string | null;
   createdAt: string;
   updatedAt: string;
 }

@@ -11,6 +11,8 @@ interface CreatePersonRequest {
   birthDate: string | null;
   deathDate: string | null;
   profilePictureUrl?: string | null;
+  phoneNumber?: string | null;
+  address?: string | null;
 }
 
 interface UpdatePersonRequest {
@@ -19,6 +21,8 @@ interface UpdatePersonRequest {
   birthDate?: string | null;
   deathDate?: string | null;
   profilePictureUrl?: string | null;
+  phoneNumber?: string | null;
+  address?: string | null;
 }
 interface DeletePersonRequest {
   id: string;
@@ -36,6 +40,8 @@ interface FamilyPersonPayload {
   birthDate: string | null;
   deathDate: string | null;
   profilePictureUrl?: string | null;
+  phoneNumber?: string | null;
+  address?: string | null;
 }
 
 /** New child: person fields only; parents are `father` / `mother` on the request. */

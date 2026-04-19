@@ -7,6 +7,7 @@ import {
   createEmptyPerson,
   type PersonDraft,
 } from '@/app/components/PersonFormFields';
+import { PersonDropdownThumbnail } from '@/app/components/PersonDropdownThumbnail';
 import { familyTreeService } from '@/services/family-tree.service';
 import type { Person } from '@/types/family-tree';
 
@@ -193,9 +194,10 @@ export function AddChildModal({
                         setPickKeyword(person.name);
                         setIsPickOpen(false);
                       }}
-                      className="w-full px-3 py-2 text-left text-sm text-[#242424] hover:bg-[#F7F7F7]"
+                      className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-[#242424] hover:bg-[#F7F7F7]"
                     >
-                      {person.name}
+                      <PersonDropdownThumbnail person={person} />
+                      <span className="min-w-0 flex-1 truncate">{person.name}</span>
                     </button>
                   ))}
                   {!candidatesQuery.isLoading && filteredCandidates.length === 0 ? (

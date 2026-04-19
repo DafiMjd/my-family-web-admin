@@ -29,6 +29,8 @@ export default function AddFamilyPage() {
           gender: 'MAN',
           birthDate: father.birthDate || null,
           deathDate: father.deathDate || null,
+          phoneNumber: father.phoneNumber.trim() || null,
+          address: father.address.trim() || null,
           ...(father.profilePictureUrl ? { profilePictureUrl: father.profilePictureUrl } : {}),
         },
         mother: {
@@ -37,6 +39,8 @@ export default function AddFamilyPage() {
           gender: 'WOMAN',
           birthDate: mother.birthDate || null,
           deathDate: mother.deathDate || null,
+          phoneNumber: mother.phoneNumber.trim() || null,
+          address: mother.address.trim() || null,
           ...(mother.profilePictureUrl ? { profilePictureUrl: mother.profilePictureUrl } : {}),
         },
         children: children.map((entry) =>
@@ -48,6 +52,8 @@ export default function AddFamilyPage() {
                   gender: entry.draft.gender,
                   birthDate: entry.draft.birthDate || null,
                   deathDate: entry.draft.deathDate || null,
+                  phoneNumber: entry.draft.phoneNumber.trim() || null,
+                  address: entry.draft.address.trim() || null,
                   ...(entry.draft.profilePictureUrl
                     ? { profilePictureUrl: entry.draft.profilePictureUrl }
                     : {}),
